@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>CRA Open House 2027</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/uicons-solid-rounded/css/uicons-solid-rounded.css'>
+  <script src="https://unpkg.com/@lottiefiles/dotlottie-wc@0.8.11/dist/dotlottie-wc.js" type="module"></script>
+  
+  <style>
+    body { font-family: 'Noto Sans Thai', sans-serif; background-color: #f8fafc; overflow-x: hidden; -webkit-tap-highlight-color: transparent;}
+    
+    .glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15); border-radius: 2.5rem; }
+    
+    .hero-pattern {
+      background-image: radial-gradient(#1e3a8a 1px, transparent 1px);
+      background-size: 30px 30px;
+      background-position: -19px -19px;
+      opacity: 0.05;
+    }
+    
+    @keyframes blob { 0% { transform: translate(0px, 0px) scale(1); } 33% { transform: translate(30px, -50px) scale(1.1); } 66% { transform: translate(-20px, 20px) scale(0.9); } 100% { transform: translate(0px, 0px) scale(1); } }
+    .animate-blob { animation: blob 7s infinite; }
+    .animation-delay-2000 { animation-delay: 2s; }
+
+    .btn-orange { background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); color: white; transition: all 0.3s; }
+    .btn-orange:hover { transform: translateY(-2px); box-shadow: 0 10px 20px -5px rgba(249, 115, 22, 0.4); }
+  </style>
+</head>
+<body class="relative min-h-dvh flex flex-col items-center justify-center p-4">
+
+  <!-- พื้นหลัง -->
+  <div class="fixed inset-0 bg-gradient-to-br from-[#eff6ff] via-[#dbeafe] to-[#e0e7ff] -z-50"></div>
+  <div class="fixed inset-0 hero-pattern z-0 pointer-events-none"></div>
+  <div class="fixed top-[-10%] left-[-10%] w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-[128px] opacity-30 animate-blob z-0"></div>
+  <div class="fixed bottom-[-10%] right-[-10%] w-96 h-96 bg-orange-400 rounded-full mix-blend-multiply filter blur-[128px] opacity-30 animate-blob animation-delay-2000 z-0"></div>
+
+  <div class="w-full max-w-4xl relative z-10 animate-[fadeIn_0.5s_ease-out]">
+      <div class="glass-panel relative p-8 md:p-12 text-center flex flex-col items-center gap-6">
+
+         <!-- โลโก้ -->
+         <div class="w-full flex justify-center items-center mb-2">
+            <a href='https://postimg.cc/qzxLdhxJ' target='_blank' class="inline-block transform hover:scale-105 transition">
+                <img src="https://i.postimg.cc/qzxLdhxJ/LOGO-CRAOH2027-01.png" alt="CRA Open House 2027 Logo" class="h-24 md:h-36 object-contain drop-shadow-sm">
+            </a>
+         </div>
+
+         <div>
+             <div class="inline-flex items-center justify-center px-6 py-2 bg-orange-500 text-white rounded-full shadow-lg shadow-orange-500/30 mb-4 font-bold transform -rotate-3 text-lg">ลงทะเบียนฟรี!</div>
+             <h2 class="text-lg md:text-xl text-blue-600 font-black uppercase mb-1 tracking-wider">เปิดบ้านแนะแนวการศึกษา</h2>
+             <h1 class="text-4xl md:text-6xl font-extrabold text-slate-800 mb-2 tracking-tight">ราชวิทยาลัยจุฬาภรณ์</h1>
+             <p class="text-slate-600 mt-4 max-w-lg mx-auto px-4 py-3 bg-blue-50/50 rounded-xl border border-blue-100 font-medium">
+             รับ <span class="font-black text-orange-500">E-Ticket</span> เข้างานทันที ลงทะเบียนฟรี ไม่มีค่าใช้จ่าย
+         </p>
+     </div>
+     
+     <div class="relative w-full max-w-[280px] h-40 md:max-w-[400px] md:h-[250px] mx-auto">
+         <dotlottie-wc src="https://lottie.host/ef534813-19b0-4679-903d-4790b0d4ee40/JkiBf0lw92.lottie" autoplay loop class="w-full h-full"></dotlottie-wc>
+     </div>
+     
+     <!-- ยอดผู้ลงทะเบียน (Live Counter) -->
+     <div class="bg-white/80 rounded-2xl px-8 py-4 shadow-sm border border-slate-100 flex flex-col items-center justify-center -mt-4 mb-2 relative z-20 w-full max-w-sm">
+        <h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-1.5"><span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span></span> ผู้ลงทะเบียนแล้วทั้งหมด</h3>
+        <div class="text-3xl md:text-4xl font-black text-blue-700 flex items-baseline gap-1.5">
+           <span id="counter">---</span>
+           <span class="text-sm font-bold text-slate-400">คน</span>
+        </div>
+     </div>
+     
+     <!-- ปุ่ม Action -->
+     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-xl mt-2">
+         <a href="register.html" class="btn-orange rounded-2xl p-5 md:p-6 shadow-md shadow-orange-500/20 w-full text-left border-0 cursor-pointer group flex items-center gap-4">
+             <i class="fi fi-sr-rocket-lunch text-3xl md:text-4xl group-hover:scale-110 transition-transform"></i>
+             <div>
+                 <span class="block text-[11px] md:text-xs uppercase font-bold text-orange-100 tracking-wider">สำหรับผู้เข้าร่วมใหม่</span>
+                 <span class="block text-lg md:text-xl font-black">ลงทะเบียนเข้างาน</span>
+             </div>
+         </a>
+         
+         <a href="ticket.html" class="bg-white border-2 border-blue-100 text-blue-600 rounded-2xl p-5 md:p-6 hover:bg-blue-50 hover:border-blue-300 transition w-full text-left cursor-pointer group shadow-sm flex items-center gap-4">
+             <i class="fi fi-sr-id-badge text-3xl md:text-4xl group-hover:scale-110 transition-transform"></i>
+             <div>
+                 <span class="block text-[11px] md:text-xs uppercase font-bold text-slate-400 tracking-wider">ลงทะเบียนไว้แล้ว</span>
+                 <span class="block text-lg md:text-xl font-black text-slate-700">เช็ค E-Ticket / ดู QR</span>
+             </div>
+         </a>
+     </div>
+
+     <p class="text-slate-400 font-medium text-[11px] mt-4">© 2026 CRA Education. All rights reserved.</p>
+
+      </div>
+  </div>
+
+  <script>
+    // ⚠️ นำลิงก์ Web App (Deploy อันใหม่) มาใส่ที่นี่ ⚠️
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby5DEx-6Ih4FaVca6jCjm6ZEbrYf-sX4BJ_HPjm8Zu03RABG4cWD8aAXRNi2Vdm8RGQ4g/exec"; 
+
+    window.onload = () => {
+       fetch(SCRIPT_URL + "?action=getStats")
+         .then(r => r.json())
+         .then(data => {
+            if(data.status === 'success') {
+               animateValue("counter", 0, data.count, 1500);
+            }
+         })
+         .catch(err => { document.getElementById('counter').innerText = "0"; });
+    };
+
+    function animateValue(id, start, end, duration) {
+        if (start === end) { document.getElementById(id).innerHTML = end.toLocaleString(); return; }
+        var range = end - start;
+        var current = start;
+        var increment = end > start ? 1 : -1;
+        var stepTime = Math.abs(Math.floor(duration / range));
+        var obj = document.getElementById(id);
+        var timer = setInterval(function() {
+            current += increment;
+            obj.innerHTML = current.toLocaleString();
+            if (current == end) clearInterval(timer);
+        }, stepTime);
+    }
+  </script>
+</body>
+</html>
