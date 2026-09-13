@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>ตรวจสอบ E-Ticket - CRA Open House 2027</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/uicons-solid-rounded/css/uicons-solid-rounded.css'>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  
+  <style>
+    body { font-family: 'Noto Sans Thai', sans-serif; background-color: #f8fafc; overflow-x: hidden; -webkit-tap-highlight-color: transparent;}
+    
+    .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+    .bottom-bar-shadow { box-shadow: 0 -4px 20px rgba(0,0,0,0.05); }
+
+    .input-glass { background-color: #f8fafc; border: 2px solid #e2e8f0; transition: all 0.2s ease-in-out; width: 100%; padding: 1.25rem; border-radius: 1rem; outline: none; font-weight: 700; color: #1e293b; text-align: center;}
+    .input-glass:focus { border-color: #f97316; box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.1); background-color: #fff; }
+
+    .btn-action { background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); color: white; transition: all 0.3s ease; border-radius: 9999px; }
+    .btn-action:hover { transform: translateY(-2px); box-shadow: 0 10px 20px -5px rgba(249, 115, 22, 0.4); }
+    .loader-sm { width: 20px; height: 20px; border: 3px solid #FFF; border-bottom-color: transparent; border-radius: 50%; display: inline-block; animation: spin 1s linear infinite; }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-[#eff6ff] via-[#dbeafe] to-[#e0e7ff] bg-fixed min-h-screen relative flex flex-col items-center justify-center pb-24 md:pb-0 px-4">
+
+  <div class="w-full max-w-md relative z-10">
+      
+      <a href="index.html" class="absolute -top-16 left-0 flex items-center gap-2 text-slate-500 hover:text-blue-700 font-bold transition-colors text-sm">
+         <i class="fi fi-sr-arrow-small-left text-xl mt-1"></i> กลับหน้าหลัก
+      </a>
+
+      <!-- ค้นหาฟอร์ม -->
+      <div id="searchBox" class="bg-white p-8 md:p-10 rounded-[2rem] shadow-xl shadow-blue-900/5 border border-slate-100 text-center transform transition-all duration-500">
+          <div class="w-20 h-20 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-white shadow-md">
+              <i class="fi fi-sr-id-badge text-3xl mt-1"></i>
+          </div>
+          <h2 class="text-2xl md:text-3xl font-black text-slate-800 tracking-tight mb-2">เช็ค E-Ticket ของท่าน</h2>
+          <p class="text-slate-500 font-medium text-sm mb-8">กรอกเบอร์โทรศัพท์มือถือที่ท่านใช้ลงทะเบียน</p>
+          
+          <input type="tel" id="checkPhone" class="input-glass text-2xl tracking-widest mb-6" placeholder="08X-XXX-XXXX" maxlength="12" oninput="formatPhone(this)">
+          
+          <button onclick="checkTicket()" id="btnCheck" class="w-full btn-action py-4 font-black text-lg flex items-center justify-center gap-2">
+              ตรวจสอบข้อมูล
+          </button>
+      </div>
+
+      <!-- ผลลัพธ์ -->
+      <div id="resultBox" class="hidden flex-col items-center text-center animate-[fadeIn_0.5s_ease-out]">
+          <div class="bg-white p-8 md:p-10 rounded-[2rem] border border-blue-100 w-full shadow-2xl mb-6 relative bg-gradient-to-b from-[#1e3a8a] to-[#3b82f6]">
+              <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-orange-500 text-white px-6 py-1.5 rounded-full font-black text-sm uppercase tracking-widest shadow-md">E-Ticket</div>
+              
+              <p class="text-[11px] text-blue-200 font-bold mb-1 uppercase tracking-widest mt-2">รหัสประจำตัว (ID)</p>
+              <div class="text-5xl sm:text-6xl font-black tracking-widest mb-4 drop-shadow-md text-white" id="resId">--</div>
+              
+              <div class="text-lg font-bold text-blue-100 mb-8" id="resName">--</div>
+
+              <div class="bg-white p-4 rounded-3xl mb-2 border-2 border-dashed border-blue-200 shadow-inner">
+                  <img id="resQr" src="" class="w-full object-contain aspect-square" crossorigin="anonymous">
+              </div>
+          </div>
+          
+          <div class="flex flex-col gap-3 w-full mb-8">
+             <a id="btnDownload" href="#" target="_blank" class="w-full btn-action py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 no-underline">
+                <i class="fi fi-sr-download mt-1"></i> ดาวน์โหลด QR Code เก็บไว้
+             </a>
+             <a id="btnEmail" href="#" class="w-full bg-white text-slate-700 py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 no-underline hover:bg-slate-50 transition border border-slate-200 shadow-sm">
+                <i class="fi fi-sr-envelope mt-1"></i> ส่งเข้าอีเมลตัวเอง
+             </a>
+             <a id="btnReport" href="#" class="w-full bg-white/50 text-rose-500 py-2.5 mt-2 rounded-xl font-bold text-sm flex items-center justify-center gap-1.5 no-underline hover:bg-rose-50 transition border border-rose-100">
+                <i class="fi fi-sr-triangle-warning mt-0.5"></i> แจ้งปัญหาข้อมูล / แก้ไขชื่อ
+             </a>
+          </div>
+          
+          <button onclick="resetSearch()" class="text-blue-600 font-bold hover:underline transition-colors">เช็คเบอร์โทรศัพท์อื่น</button>
+      </div>
+
+  </div>
+
+  <!-- Bottom App Bar (Mobile Only) -->
+  <div class="md:hidden fixed bottom-0 left-0 w-full bg-white bottom-bar-shadow border-t border-slate-100 z-50 pb-safe">
+     <div class="flex justify-around items-center px-2 py-2">
+        <a href="index.html" class="flex flex-col items-center justify-center w-1/3 py-2 text-slate-400 hover:text-blue-700 transition-colors">
+           <i class="fi fi-sr-home text-xl mb-1"></i>
+           <span class="text-[10px] font-bold">หน้าหลัก</span>
+        </a>
+        <div class="w-1/3 flex justify-center -mt-6">
+           <a href="register.html" class="w-14 h-14 bg-gradient-to-tr from-orange-500 to-orange-400 text-white rounded-full flex items-center justify-center shadow-lg shadow-orange-500/40 border-4 border-white transform transition active:scale-95">
+              <i class="fi fi-sr-pencil text-xl mt-1 pl-1"></i>
+           </a>
+        </div>
+        <a href="ticket.html" class="flex flex-col items-center justify-center w-1/3 py-2 text-blue-700">
+           <i class="fi fi-sr-id-badge text-xl mb-1"></i>
+           <span class="text-[10px] font-bold">E-Ticket</span>
+        </a>
+     </div>
+  </div>
+
+  <script>
+    // ⚠️ นำลิงก์ Web App มาใส่ ⚠️
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby5DEx-6Ih4FaVca6jCjm6ZEbrYf-sX4BJ_HPjm8Zu03RABG4cWD8aAXRNi2Vdm8RGQ4g/exec"; 
+    
+    function formatPhone(input) {
+        var val = input.value.replace(/\D/g, '');
+        if (val.length > 10) val = val.substring(0, 10);
+        input.value = val.length > 6 ? `${val.substring(0,3)}-${val.substring(3,6)}-${val.substring(6)}` : val.length > 3 ? `${val.substring(0,3)}-${val.substring(3)}` : val;
+    }
+
+    function checkTicket() {
+        const phone = document.getElementById('checkPhone').value;
+        if(phone.length !== 12) return Swal.fire({icon: 'warning', text: 'กรุณากรอกเบอร์โทรศัพท์ให้ครบ 10 หลัก'});
+
+        const btn = document.getElementById('btnCheck');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<span class="loader-sm"></span>'; btn.disabled = true;
+
+        fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'login', phone: phone })
+        })
+        .then(r => r.json())
+        .then(res => {
+            btn.innerHTML = originalText; btn.disabled = false;
+            if(res.status === 'success') {
+                document.getElementById('searchBox').classList.add('hidden');
+                document.getElementById('resultBox').classList.remove('hidden');
+                document.getElementById('resultBox').classList.add('flex');
+
+                document.getElementById('resId').innerText = res.id;
+                document.getElementById('resName').innerText = res.name;
+                document.getElementById('resQr').src = res.qrUrl;
+
+                const mailSubject = encodeURIComponent("E-Ticket CRA Open House 2027 ของคุณ");
+                const mailBody = encodeURIComponent(`สวัสดีครับคุณ ${res.name}\n\nนี่คือรหัส E-Ticket สำหรับเข้าร่วมงาน CRA Open House 2027 ของคุณ\nรหัสประจำตัว: ${res.id}\n\nลิงก์ QR Code สำหรับแสกนเข้างาน:\n${res.qrUrl}\n\nขอบคุณครับ`);
+                const reportSubject = encodeURIComponent(`แจ้งปัญหาข้อมูล E-Ticket - ID: ${res.id}`);
+                const reportBody = encodeURIComponent(`รหัส: ${res.id}\nชื่อ-นามสกุล: ${res.name}\nเบอร์โทรศัพท์: ${phone}\n\nรายละเอียดปัญหาที่ต้องการแก้ไข:\n`);
+
+                document.getElementById('btnDownload').href = res.qrUrl;
+                document.getElementById('btnEmail').href = `mailto:?subject=${mailSubject}&body=${mailBody}`;
+                document.getElementById('btnReport').href = `mailto:craopenhouse@gmail.com?subject=${reportSubject}&body=${reportBody}`;
+            } else {
+                Swal.fire({icon: 'error', title: 'ไม่พบข้อมูล', text: 'ไม่พบเบอร์โทรศัพท์นี้ในระบบ กรุณาตรวจสอบอีกครั้ง'});
+            }
+        })
+        .catch(err => {
+            btn.innerHTML = originalText; btn.disabled = false;
+            Swal.fire({icon: 'error', text: 'เชื่อมต่อเซิร์ฟเวอร์ขัดข้อง'});
+        });
+    }
+
+    function resetSearch() {
+        document.getElementById('searchBox').classList.remove('hidden');
+        document.getElementById('resultBox').classList.add('hidden');
+        document.getElementById('resultBox').classList.remove('flex');
+        document.getElementById('checkPhone').value = '';
+    }
+  </script>
+</body>
+</html>
