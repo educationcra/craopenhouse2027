@@ -364,7 +364,9 @@
     const coursesMap = [
         { name: "แพทยศาสตร์", icon: "fi-sr-stethoscope" },
         { name: "วิทยาศาสตร์ข้อมูลสุขภาพ", icon: "fi-sr-chart-histogram" },
-        { name: "พยาบาลศาสตร์(4 ปี/หลักสูตรนานาชาติ 4 ปี)", icon: "fi-sr-user-nurse" },
+        { name: "พยาบาลศาสตร์(4 ปี)", icon: "fi-sr-user-nurse" },
+      { name: "พยาบาลศาสตร์(หลักสูตรนานาชาติ 4 ปี)", icon: "fi-sr-user-nurse" },
+      { name: "พยาบาลศาสตร์(สำหรับผู้สำเร็จปริญญาตรีสาขาอื่น)", icon: "fi-sr-user-nurse" },
         { name: "รังสีเทคนิค", icon: "fi-sr-bone" },
         { name: "วิทยาศาสตร์การเคลื่อนไหวและสุขภาพ", icon: "fi-sr-running" },
         { name: "ฉุกเฉินการแพทย์", icon: "fi-sr-ambulance" },
@@ -403,8 +405,8 @@
         document.getElementById('sourceGroup').innerHTML = htmlSources;
 
         // 🌟 Initialize Universal Custom Dropdowns 🌟
-        renderCustomDropdown('userType', ['นักเรียน', 'คุณครู', 'ผู้ปกครองและบุคคลทั่วไป'], '-- เลือกประเภท --', 'fi-sr-users', updateDynamicFields);
-        renderCustomDropdown('age', ['ต่ำกว่า 15 ปี', '16 - 18 ปี', '18 - 23 ปี', 'มากกว่า 23 ปี'], '-- เลือกช่วงอายุ --', 'fi-sr-calendar');
+        renderCustomDropdown('userType', ['นักเรียน','นักศึกษา', 'คุณครู', 'ผู้ปกครองและบุคคลทั่วไป'], '-- เลือกประเภท --', 'fi-sr-users', updateDynamicFields);
+        renderCustomDropdown('age', ['ต่ำกว่า 15 ปี', '16 - 18 ปี', '19 - 22 ปี', 'มากกว่า 23 ปี'], '-- เลือกช่วงอายุ --', 'fi-sr-calendar');
         renderCustomDropdown('prefix', ['นาย', 'นางสาว', 'เด็กชาย', 'เด็กหญิง', 'นาง'], '-- เลือก --', 'fi-sr-venus-mars');
 
         renderCustomDropdown('provinceSelect', provinces, '-- เลือกจังหวัด --', 'fi-sr-map-marker');
