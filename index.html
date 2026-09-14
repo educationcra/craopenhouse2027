@@ -53,48 +53,89 @@
              <h1 class="text-4xl md:text-6xl font-extrabold text-slate-800 mb-2 tracking-tight">ราชวิทยาลัยจุฬาภรณ์</h1>
              <p class="text-slate-600 mt-4 max-w-lg mx-auto px-4 py-3 bg-blue-50/50 rounded-xl border border-blue-100 font-medium">
              รับ <span class="font-black text-orange-500">E-Ticket</span> เข้างานทันที ลงทะเบียนฟรี ไม่มีค่าใช้จ่าย
-         </p>
-     </div>
+             </p>
+         </div>
      
-     <div class="relative w-full max-w-[280px] h-40 md:max-w-[400px] md:h-[250px] mx-auto">
-         <dotlottie-wc src="https://lottie.host/ef534813-19b0-4679-903d-4790b0d4ee40/JkiBf0lw92.lottie" autoplay loop class="w-full h-full"></dotlottie-wc>
-     </div>
+         <div class="relative w-full max-w-[280px] h-40 md:max-w-[400px] md:h-[250px] mx-auto">
+             <dotlottie-wc src="https://lottie.host/ef534813-19b0-4679-903d-4790b0d4ee40/JkiBf0lw92.lottie" autoplay loop class="w-full h-full"></dotlottie-wc>
+         </div>
      
-     <!-- ยอดผู้ลงทะเบียน (Live Counter) -->
-     <div class="bg-white/80 rounded-2xl px-8 py-4 shadow-sm border border-slate-100 flex flex-col items-center justify-center -mt-4 mb-2 relative z-20 w-full max-w-sm">
-        <h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-1.5"><span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span></span> ผู้ลงทะเบียนแล้วทั้งหมด</h3>
-        <div class="text-3xl md:text-4xl font-black text-blue-700 flex items-baseline gap-1.5">
-           <span id="counter">---</span>
-           <span class="text-sm font-bold text-slate-400">คน</span>
-        </div>
-     </div>
-     
-     <!-- ปุ่ม Action -->
-     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-xl mt-2">
-         <a href="register.html" class="btn-orange rounded-2xl p-5 md:p-6 shadow-md shadow-orange-500/20 w-full text-left border-0 cursor-pointer group flex items-center gap-4">
-             <i class="fi fi-sr-rocket-lunch text-3xl md:text-4xl group-hover:scale-110 transition-transform"></i>
-             <div>
-                 <span class="block text-[11px] md:text-xs uppercase font-bold text-orange-100 tracking-wider">สำหรับผู้เข้าร่วมใหม่</span>
-                 <span class="block text-lg md:text-xl font-black">ลงทะเบียนเข้างาน</span>
-             </div>
-         </a>
-         
-         <a href="ticket.html" class="bg-white border-2 border-blue-100 text-blue-600 rounded-2xl p-5 md:p-6 hover:bg-blue-50 hover:border-blue-300 transition w-full text-left cursor-pointer group shadow-sm flex items-center gap-4">
-             <i class="fi fi-sr-id-badge text-3xl md:text-4xl group-hover:scale-110 transition-transform"></i>
-             <div>
-                 <span class="block text-[11px] md:text-xs uppercase font-bold text-slate-400 tracking-wider">ลงทะเบียนไว้แล้ว</span>
-                 <span class="block text-lg md:text-xl font-black text-slate-700">เช็ค E-Ticket / ดู QR</span>
-             </div>
-         </a>
-     </div>
+         <!-- ยอดผู้ลงทะเบียน (Live Counter) -->
+         <div class="bg-white/80 rounded-2xl px-8 py-4 shadow-sm border border-slate-100 flex flex-col items-center justify-center -mt-4 mb-2 relative z-20 w-full max-w-sm">
+            <h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-1.5"><span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span></span> ผู้ลงทะเบียนแล้วทั้งหมด</h3>
+            <div class="text-3xl md:text-4xl font-black text-blue-700 flex items-baseline gap-1.5">
+               <span id="counter">---</span>
+               <span class="text-sm font-bold text-slate-400">คน</span>
+            </div>
+         </div>
 
-     <p class="text-slate-400 font-medium text-[11px] mt-4">© 2026 CRA Education. All rights reserved.</p>
+         <!-- Countdown Timer -->
+         <div id="countdown-container" class="w-full max-w-xl mt-2 bg-slate-800 rounded-2xl p-6 shadow-lg shadow-slate-800/20 flex flex-col items-center border border-slate-700">
+             <h3 class="text-xs md:text-sm font-bold text-orange-400 uppercase tracking-widest mb-3">ระบบเปิดลงทะเบียนในอีก</h3>
+             <div class="flex items-center gap-3 md:gap-6 text-white font-black text-2xl md:text-4xl">
+                 <div class="flex flex-col items-center w-12 md:w-16"><span id="cd-days">00</span><span class="text-[10px] font-normal text-slate-400 mt-1 uppercase">วัน</span></div>
+                 <span class="text-slate-500 animate-pulse pb-4">:</span>
+                 <div class="flex flex-col items-center w-12 md:w-16"><span id="cd-hours">00</span><span class="text-[10px] font-normal text-slate-400 mt-1 uppercase">ชั่วโมง</span></div>
+                 <span class="text-slate-500 animate-pulse pb-4">:</span>
+                 <div class="flex flex-col items-center w-12 md:w-16"><span id="cd-minutes">00</span><span class="text-[10px] font-normal text-slate-400 mt-1 uppercase">นาที</span></div>
+                 <span class="text-slate-500 animate-pulse pb-4">:</span>
+                 <div class="flex flex-col items-center w-12 md:w-16"><span id="cd-seconds">00</span><span class="text-[10px] font-normal text-slate-400 mt-1 uppercase">วินาที</span></div>
+             </div>
+         </div>
+     
+         <!-- ปุ่ม Action (ซ่อนไว้จนกว่าจะถึงเวลา) -->
+         <div id="action-buttons" class="hidden grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-xl mt-2 animate-[fadeIn_0.5s_ease-in]">
+             <a href="register.html" class="btn-orange rounded-2xl p-5 md:p-6 shadow-md shadow-orange-500/20 w-full text-left border-0 cursor-pointer group flex items-center gap-4">
+                 <i class="fi fi-sr-rocket-lunch text-3xl md:text-4xl group-hover:scale-110 transition-transform"></i>
+                 <div>
+                     <span class="block text-[11px] md:text-xs uppercase font-bold text-orange-100 tracking-wider">สำหรับผู้เข้าร่วมใหม่</span>
+                     <span class="block text-lg md:text-xl font-black">ลงทะเบียนเข้างาน</span>
+                 </div>
+             </a>
+             
+             <a href="ticket.html" class="bg-white border-2 border-blue-100 text-blue-600 rounded-2xl p-5 md:p-6 hover:bg-blue-50 hover:border-blue-300 transition w-full text-left cursor-pointer group shadow-sm flex items-center gap-4">
+                 <i class="fi fi-sr-id-badge text-3xl md:text-4xl group-hover:scale-110 transition-transform"></i>
+                 <div>
+                     <span class="block text-[11px] md:text-xs uppercase font-bold text-slate-400 tracking-wider">ลงทะเบียนไว้แล้ว</span>
+                     <span class="block text-lg md:text-xl font-black text-slate-700">เช็ค E-Ticket / ดู QR</span>
+                 </div>
+             </a>
+         </div>
+
+         <p class="text-slate-400 font-medium text-[11px] mt-4">© 2026 CRA Education. All rights reserved.</p>
 
       </div>
   </div>
 
   <script>
-    // ⚠️ นำลิงก์ Web App (Deploy อันใหม่) มาใส่ที่นี่ ⚠️
+    // ตั้งเวลาเปิดระบบ 14 กันยายน 2026 เวลา 10:00 น. (Timezone: GMT+0700)
+    const targetDate = new Date("2026-09-14T10:00:00+07:00").getTime();
+    
+    const countdownTimer = setInterval(() => {
+        const now = new Date().getTime();
+        const distance = targetDate - now;
+
+        // ถ้านับถอยหลังจบแล้ว (ถึงเวลาเปิดระบบ)
+        if (distance <= 0) {
+            clearInterval(countdownTimer);
+            document.getElementById("countdown-container").classList.add("hidden");
+            document.getElementById("action-buttons").classList.remove("hidden");
+            // ใช้ flex แบบ grid เดิม
+            document.getElementById("action-buttons").style.display = "grid"; 
+            return;
+        }
+
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        document.getElementById("cd-days").innerText = String(days).padStart(2, '0');
+        document.getElementById("cd-hours").innerText = String(hours).padStart(2, '0');
+        document.getElementById("cd-minutes").innerText = String(minutes).padStart(2, '0');
+        document.getElementById("cd-seconds").innerText = String(seconds).padStart(2, '0');
+    }, 1000);
+
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby5DEx-6Ih4FaVca6jCjm6ZEbrYf-sX4BJ_HPjm8Zu03RABG4cWD8aAXRNi2Vdm8RGQ4g/exec"; 
 
     window.onload = () => {
