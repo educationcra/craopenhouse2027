@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>ระบบเช็คอิน - CRA Open House 2027</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/uicons-solid-rounded/css/uicons-solid-rounded.css'>
+  <!-- นำเข้า html5-qrcode สำหรับสแกน QR Code -->
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+  
+  <style>
+    body { 
+      font-family: 'Noto Sans Thai', sans-serif; 
+      background-color: #0f172a; 
+      color: white;
+    }
+    
+    /* ซ่อนลูกศรขึ้นลงใน input type number */
+    input[type="number"]::-webkit-inner-spin-button, 
+    input[type="number"]::-webkit-outer-spin-button { 
+      -webkit-appearance: none; margin: 0; 
+    }
+
+    .modern-popup { border-radius: 24px !important; font-family: 'Noto Sans Thai', sans-serif !important; }
+    
+    /* Animation สำหรับการดันรายชื่อ (Pulse Effect) */
+    .highlight-row {
+      animation: pulseHighlight 2.5s cubic-bezier(0.4, 0, 0.6, 1) forwards;
+    }
+    
+    @keyframes pulseHighlight {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.7); border-color: #f97316; background-color: rgba(234, 88, 12, 0.4); }
+      20% { transform: scale(1.02); box-shadow: 0 0 20px 5px rgba(249, 115, 22, 0.5); }
+      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(249, 115, 22, 0); }
+    }
+
+    /* ตกแต่งกล่องวิดีโอของ QR Scanner */
+    #reader { border-radius: 1.5rem; overflow: hidden; border: 2px dashed #38bdf8; display: none; }
+    #reader video { object-fit: cover; border-radius: 1.5rem; }
+  </style>
+</head>
+<body class="min-h-screen pb-10">
+
+  <!-- แถบตกแต่งบนสุด -->
+  <div class="w-full h-2 bg-gradient-to-r from-orange-500 via-rose-500 to-blue-600 fixed top-0 z-50"></div>
+
+  <!-- Header -->
+  <header class="pt-8 pb-4 px-6 max-w-7xl mx-auto flex justify-between items-center">
+    <div class="flex items-center gap-4">
+      <div class="w-12 h-12 bg-orange-500/10 rounded-xl flex items-center justify-center border border-orange-500/20">
+        <i class="fi fi-sr-id-badge text-2xl text-orange-400 mt-1"></i>
+      </div>
+      <div>
+        <h1 class="text-2xl md:text-3xl font-black tracking-tight text-white leading-none">ระบบเช็คอินหน้างาน</h1>
+        <p class="text-slate-400 text-sm font-medium mt-1">CRA Open House 2027</p>
+      </div>
+    </div>
+    <a href="index.html" class="hidden md:flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-xl transition border border-slate-700 text-sm font-bold">
+      <i class="fi fi-sr-home mt-0.5"></i> หน้าหลัก
+    </a>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 lg:px-6 lg:flex lg:gap-8 lg:items-start mt-4">
+    
+    <!-- LEFT PANEL: Sticky Dashboard & Form -->
+    <div class="w-full lg:w-4/12 lg:sticky lg:top-8 flex flex-col gap-6 shrink-0">
+      
+      <!-- Real-time Stats -->
+      <div class="grid grid-cols-3 gap-3">
+        <div class="bg-slate-800 rounded-2xl p-4 text-center border border-slate-700 shadow-lg">
+          <div class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">ทั้งหมด</div>
+          <div class="text-3xl font-black text-white" id="stat-total">0</div>
+        </div>
+        <div class="bg-emerald-500/10 rounded-2xl p-4 text-center border border-emerald-500/20 shadow-lg relative overflow-hidden">
+          <div class="absolute -right-2 -top-2 opacity-20"><i class="fi fi-sr-check-circle text-4xl text-emerald-400"></i></div>
+          <div class="text-[10px] text-emerald-400 font-bold uppercase tracking-widest mb-1 relative z-10">มาแล้ว</div>
+          <div class="text-3xl font-black text-emerald-400 relative z-10" id="stat-arrived">0</div>
+        </div>
+        <div class="bg-orange-500/10 rounded-2xl p-4 text-center border border-orange-500/20 shadow-lg relative overflow-hidden">
+          <div class="absolute -right-2 -top-2 opacity-20"><i class="fi fi-sr-time-fast text-4xl text-orange-400"></i></div>
+          <div class="text-[10px] text-orange-400 font-bold uppercase tracking-widest mb-1 relative z-10">รอเช็คอิน</div>
+          <div class="text-3xl font-black text-orange-400 relative z-10" id="stat-waiting">0</div>
+        </div>
+      </div>
+
+      <!-- Check-in Form -->
+      <div class="bg-slate-800 border border-slate-700 rounded-3xl p-6 shadow-xl relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-32 h-32 bg-orange-500 rounded-full blur-[80px] opacity-20 pointer-events-none"></div>
+        
+        <h2 class="text-lg font-black text-white mb-4 flex items-center gap-2">
+          <i class="fi fi-sr-keyboard text-orange-400"></i> ระบุข้อมูลเพื่อเช็คอิน
+        </h2>
+
+        <!-- QR Scanner Box -->
+        <div id="reader" class="w-full mb-4 bg-slate-900"></div>
+        
+        <button id="toggleCameraBtn" onclick="toggleCamera()" class="w-full mb-4 bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-2xl border border-slate-600 transition-colors flex items-center justify-center gap-2">
+          <i class="fi fi-sr-camera"></i> <span>เปิดกล้องสแกน QR Code</span>
+        </button>
+        
+        <div class="flex items-center gap-4 mb-4">
+          <hr class="w-full border-slate-600">
+          <span class="text-xs text-slate-500 font-bold whitespace-nowrap">หรือพิมพ์ค้นหา</span>
+          <hr class="w-full border-slate-600">
+        </div>
+
+        <form id="checkinForm" onsubmit="handleCheckinSubmit(event)" class="flex flex-col gap-4">
+          
+          <!-- ปุ่มสลับโหมดการค้นหา -->
+          <div class="flex bg-slate-900 rounded-xl p-1 border border-slate-700 relative w-full">
+            <div id="modeIndicator" class="absolute left-1 top-1 bottom-1 w-[calc(50%-4px)] bg-slate-700 rounded-lg shadow-sm transition-all duration-300 ease-out z-0"></div>
+            <button type="button" onclick="switchMode('id')" id="btnModeId" class="relative z-10 flex-1 py-2.5 text-sm font-bold text-white transition-colors">รหัส 4 หลัก</button>
+            <button type="button" onclick="switchMode('name')" id="btnModeName" class="relative z-10 flex-1 py-2.5 text-sm font-bold text-slate-400 hover:text-white transition-colors">ค้นหาจากชื่อ</button>
+          </div>
+
+          <!-- โหมดที่ 1: กรอกรหัส ID -->
+          <div id="wrapIdMode" class="w-full block">
+            <div class="relative w-full flex items-center bg-slate-900 border-2 border-slate-600 rounded-2xl focus-within:border-orange-500 focus-within:shadow-[0_0_15px_rgba(249,115,22,0.3)] transition-all overflow-hidden">
+              <select id="idPrefix" class="bg-slate-800 text-slate-400 font-black text-xl md:text-2xl py-4 pl-4 pr-2 outline-none appearance-none cursor-pointer border-r border-slate-700">
+                <option value="OH-">OH-</option>
+                <option value="WOH-">WOH-</option>
+              </select>
+              <input type="number" id="idCodeOnly" oninput="if(this.value.length > 4) this.value = this.value.slice(0,4);" class="w-full bg-transparent py-4 pl-4 pr-4 text-2xl md:text-3xl font-black text-orange-400 placeholder-slate-700 outline-none tracking-widest text-center" placeholder="0000" autocomplete="off">
+            </div>
+          </div>
+
+          <!-- โหมดที่ 2: กรอกชื่อ-นามสกุล -->
+          <div id="wrapNameMode" class="w-full hidden relative">
+            <i class="fi fi-sr-search absolute left-5 top-1/2 -translate-y-1/2 text-slate-500 text-xl"></i>
+            <input type="text" id="nameSearchInput" oninput="handleNameAutocomplete(event)" class="w-full bg-slate-900 border-2 border-slate-600 rounded-2xl py-4 pl-14 pr-4 text-lg md:text-xl font-bold text-orange-400 placeholder-slate-600 outline-none focus:border-orange-500 focus:shadow-[0_0_15px_rgba(249,115,22,0.3)] transition-all" placeholder="พิมพ์ชื่อเพื่อค้นหา..." autocomplete="off">
+            <!-- Dropdown แนะนำชื่อ -->
+            <ul id="nameDropdown" class="absolute z-50 w-full bg-slate-800 border border-slate-600 rounded-2xl mt-2 max-h-60 overflow-y-auto hidden shadow-2xl divide-y divide-slate-700/50"></ul>
+          </div>
+          
+          <button type="submit" id="submitBtn" class="w-full bg-gradient-to-r from-orange-500 to-rose-500 text-white font-black text-lg py-4 rounded-2xl shadow-lg hover:shadow-orange-500/50 transition-all flex items-center justify-center gap-2 mt-2">
+            ยืนยันการเช็คอิน <i class="fi fi-sr-arrow-right mt-1"></i>
+          </button>
+        </form>
+      </div>
+
+    </div>
+    
+    <!-- RIGHT PANEL: Live Attendee List -->
+    <div class="w-full lg:w-8/12 mt-8 lg:mt-0">
+      <div class="bg-slate-800 border border-slate-700 rounded-3xl p-6 shadow-xl min-h-[500px]">
+        
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+          <h2 class="text-lg md:text-xl font-black text-white flex items-center gap-2">
+            <i class="fi fi-sr-users-alt text-slate-400"></i> รายชื่อผู้ลงทะเบียน
+          </h2>
+
+          <div class="flex w-full md:w-auto items-center gap-2">
+            <!-- ค้นหาในตาราง (ฝั่ง Client) -->
+            <div class="relative w-full md:w-48">
+              <i class="fi fi-sr-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm"></i>
+              <input type="text" id="filterInput" oninput="renderUI()" placeholder="ค้นหาชื่อในรายชื่อ..." class="w-full bg-slate-900 border border-slate-600 rounded-xl py-2 pl-9 pr-3 text-sm text-white focus:border-orange-500 outline-none transition-colors">
+            </div>
+            
+            <button onclick="fetchAttendees()" class="text-sm text-slate-400 hover:text-white transition bg-slate-700 hover:bg-slate-600 px-4 py-2.5 rounded-xl flex items-center gap-2 font-bold shrink-0">
+              <i class="fi fi-sr-refresh"></i>
+            </button>
+          </div>
+        </div>
+        
+        <div id="loadingList" class="flex flex-col items-center justify-center py-20 text-slate-500">
+          <i class="fi fi-sr-spinner animate-spin text-4xl mb-4 text-orange-500"></i>
+          <p class="font-bold">กำลังโหลดข้อมูลรายชื่อ...</p>
+        </div>
+
+        <div id="attendee-list" class="space-y-3 hidden">
+          <!-- ข้อมูลจะถูก Render ลงที่นี่ผ่าน JavaScript -->
+        </div>
+        
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // ⚠️ นำ URL Google Apps Script ที่ Deploy ใหม่ล่าสุด มาใส่ที่นี่
+    const GAS_URL = "https://script.google.com/macros/s/AKfycby5DEx-6Ih4FaVca6jCjm6ZEbrYf-sX4BJ_HPjm8Zu03RABG4cWD8aAXRNi2Vdm8RGQ4g/exec";
+
+    let attendees = [];
+    let highlightId = null;
+    let html5QrCode;
+    let isCameraOpen = false;
+    let currentInputMode = 'id';
+
+    // โหลดข้อมูลรายชื่อครั้งแรกเมื่อเปิดหน้าเว็บ
+    window.onload = () => {
+      fetchAttendees();
+      document.getElementById('idCodeOnly').focus();
+    };
+
+    // ==========================================
+    // ส่วนของการจัดการ Input และ โหมดค้นหา
+    // ==========================================
+    function switchMode(mode) {
+      currentInputMode = mode;
+      const indicator = document.getElementById('modeIndicator');
+      const btnId = document.getElementById('btnModeId');
+      const btnName = document.getElementById('btnModeName');
+      const wrapId = document.getElementById('wrapIdMode');
+      const wrapName = document.getElementById('wrapNameMode');
+
+      if (mode === 'id') {
+        indicator.style.transform = 'translateX(0)';
+        btnId.classList.replace('text-slate-400', 'text-white');
+        btnName.classList.replace('text-white', 'text-slate-400');
+        wrapId.classList.remove('hidden');
+        wrapName.classList.add('hidden');
+        document.getElementById('idCodeOnly').value = '';
+        document.getElementById('idCodeOnly').focus();
+      } else {
+        indicator.style.transform = 'translateX(100%)';
+        btnName.classList.replace('text-slate-400', 'text-white');
+        btnId.classList.replace('text-white', 'text-slate-400');
+        wrapName.classList.remove('hidden');
+        wrapId.classList.add('hidden');
+        document.getElementById('nameSearchInput').value = '';
+        document.getElementById('nameSearchInput').focus();
+      }
+    }
+
+    function handleNameAutocomplete(e) {
+      const val = e.target.value.toLowerCase().replace(/\s+/g, '');
+      const dropdown = document.getElementById('nameDropdown');
+      dropdown.innerHTML = '';
+      
+      if (val.length < 2) {
+        dropdown.classList.add('hidden');
+        return;
+      }
+
+      // ค้นหาคนที่มีชื่อตรงกัน
+      const matches = attendees.filter(a => a.name.toLowerCase().replace(/\s+/g, '').includes(val));
+      
+      if (matches.length > 0) {
+        matches.slice(0, 10).forEach(m => {
+          const isArrived = m.status === 'มาแล้ว';
+          const li = document.createElement('li');
+          li.className = `px-4 py-3 cursor-pointer hover:bg-slate-700 transition flex justify-between items-center ${isArrived ? 'opacity-50' : ''}`;
+          li.innerHTML = `
+            <div class="flex flex-col text-left">
+               <span class="font-bold text-slate-200">${m.name}</span>
+               ${isArrived ? '<span class="text-xs text-emerald-400 font-bold mt-0.5"><i class="fi fi-sr-check-circle"></i> เช็คอินแล้ว</span>' : ''}
+            </div>
+            <span class="text-xs font-black ${isArrived ? 'text-slate-500 bg-slate-800 border-slate-700' : 'text-orange-400 bg-orange-500/10 border-orange-500/20'} px-2 py-1 rounded-md border shrink-0">${m.id}</span>
+          `;
+          li.onclick = () => {
+            document.getElementById('nameSearchInput').value = m.name;
+            dropdown.classList.add('hidden');
+            if(!isArrived) submitCheckin(m.id); 
+            else Swal.fire({icon: 'warning', title: 'เช็คอินไปแล้ว', text: `${m.name} ได้เช็คอินเข้าระบบไปแล้ว`, customClass: { popup: 'modern-popup' }});
+          };
+          dropdown.appendChild(li);
+        });
+        dropdown.classList.remove('hidden');
+      } else {
+        dropdown.innerHTML = '<li class="px-4 py-3 text-slate-500 text-center text-sm font-bold">ไม่พบรายชื่อที่ค้นหา</li>';
+        dropdown.classList.remove('hidden');
+      }
+    }
+
+    // ซ่อน Dropdown เมื่อคลิกที่อื่น
+    document.addEventListener('click', (e) => {
+       if(e.target.id !== 'nameSearchInput') document.getElementById('nameDropdown')?.classList.add('hidden');
+    });
+
+    // ==========================================
+    // ส่วนของการจัดการ QR Scanner
+    // ==========================================
+    function toggleCamera() {
+      const btn = document.getElementById('toggleCameraBtn');
+      const readerBox = document.getElementById('reader');
+
+      if (!html5QrCode) {
+        html5QrCode = new Html5Qrcode("reader");
+      }
+
+      if (isCameraOpen) {
+        html5QrCode.stop().then(() => {
+          readerBox.style.display = 'none';
+          isCameraOpen = false;
+          btn.innerHTML = '<i class="fi fi-sr-camera"></i> <span>เปิดกล้องสแกน QR Code</span>';
+          btn.classList.remove('bg-rose-600', 'hover:bg-rose-700', 'border-rose-500');
+          btn.classList.add('bg-slate-700', 'hover:bg-slate-600', 'border-slate-600');
+        });
+      } else {
+        readerBox.style.display = 'block';
+        html5QrCode.start(
+          { facingMode: "environment" }, 
+          { fps: 10, qrbox: { width: 250, height: 250 } },
+          (decodedText, decodedResult) => {
+            // เมื่อสแกนเจอ QR Code ยิงเช็คอินทันที
+            if (navigator.vibrate) navigator.vibrate(200);
+            submitCheckin(decodedText);
+          }
+        ).then(() => {
+          isCameraOpen = true;
+          btn.innerHTML = '<i class="fi fi-sr-cross-circle"></i> <span>ปิดกล้อง</span>';
+          btn.classList.remove('bg-slate-700', 'hover:bg-slate-600', 'border-slate-600');
+          btn.classList.add('bg-rose-600', 'hover:bg-rose-700', 'border-rose-500');
+        }).catch((err) => {
+          Swal.fire('ข้อผิดพลาด', 'ไม่สามารถเข้าถึงกล้องได้ กรุณาให้สิทธิ์การใช้กล้อง', 'error');
+          readerBox.style.display = 'none';
+        });
+      }
+    }
+
+    // ==========================================
+    // ส่วนของการดึงและแสดงผลข้อมูล
+    // ==========================================
+    function fetchAttendees() {
+      const listContainer = document.getElementById('attendee-list');
+      const loading = document.getElementById('loadingList');
+      
+      listContainer.classList.add('hidden');
+      loading.classList.remove('hidden');
+
+      fetch(GAS_URL + "?action=getRegisteredList")
+        .then(res => res.json())
+        .then(data => {
+          attendees = data;
+          renderUI();
+          loading.classList.add('hidden');
+          listContainer.classList.remove('hidden');
+        })
+        .catch(err => {
+          loading.innerHTML = `<i class="fi fi-sr-exclamation text-4xl mb-4 text-red-500"></i><p class="font-bold text-red-400">โหลดข้อมูลล้มเหลว กรุณารีเฟรช</p>`;
+        });
+    }
+
+    function renderUI() {
+      const filterText = document.getElementById('filterInput').value.toLowerCase().trim();
+
+      // คัดกรองจากคำค้นหา
+      let filteredAttendees = attendees;
+      if (filterText) {
+        filteredAttendees = attendees.filter(a => 
+          a.name.toLowerCase().includes(filterText) || 
+          a.id.toLowerCase().includes(filterText)
+        );
+      }
+
+      // แยกกลุ่มคนที่มาแล้ว และ ยังไม่มา
+      let arrived = filteredAttendees.filter(a => a.status === 'มาแล้ว');
+      let waiting = filteredAttendees.filter(a => a.status !== 'มาแล้ว');
+      
+      // เรียงลำดับตามเลข ID ภายในกลุ่ม
+      const sortById = (a, b) => {
+          let numA = parseInt(a.id.split('-')[1]);
+          let numB = parseInt(b.id.split('-')[1]);
+          return numA - numB;
+      };
+      arrived.sort(sortById);
+      waiting.sort(sortById);
+
+      // 1. อัปเดต Dashboard (นับจากทั้งหมด ไม่ใช่จากการ Filter)
+      document.getElementById('stat-total').textContent = attendees.length;
+      document.getElementById('stat-arrived').textContent = attendees.filter(a => a.status === 'มาแล้ว').length;
+      document.getElementById('stat-waiting').textContent = attendees.filter(a => a.status !== 'มาแล้ว').length;
+
+      // 2. Render รายชื่อ (ดันคนที่ มาแล้ว ขึ้นไปไว้บนสุด)
+      const listContainer = document.getElementById('attendee-list');
+      let html = '';
+      
+      const allDisplay = [...arrived, ...waiting];
+
+      if (allDisplay.length === 0) {
+         html = '<div class="text-center py-10 text-slate-500 font-bold">ไม่พบข้อมูลที่ค้นหา</div>';
+      } else {
+         allDisplay.forEach(item => {
+             const isArrived = item.status === 'มาแล้ว';
+             const isHighlight = item.id === highlightId; // ตรวจสอบว่าใช่คนที่เพิ่งเช็คอินไหม
+             
+             // กำหนดสไตล์การ์ด
+             const baseClass = "flex items-center justify-between p-4 rounded-2xl border transition-all duration-300 ";
+             let stateClass = isArrived 
+                 ? "bg-emerald-500/10 border-emerald-500/30" 
+                 : "bg-slate-800 border-slate-700 opacity-60 hover:opacity-100";
+                 
+             if (isHighlight) stateClass += " highlight-row"; // ใส่ Animation ให้เด้ง
+
+             const icon = isArrived 
+               ? '<i class="fi fi-sr-check-circle text-emerald-400 text-3xl"></i>' 
+               : '<i class="fi fi-sr-time-fast text-slate-500 text-2xl"></i>';
+
+             html += `
+                 <div id="row-${item.id}" class="${baseClass} ${stateClass}">
+                     <div class="flex items-center gap-4">
+                         <div class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${isArrived ? 'bg-emerald-500/20' : 'bg-slate-700'}">
+                             <span class="font-black text-lg ${isArrived ? 'text-emerald-400' : 'text-slate-400'}">${item.id.replace(/^(OH|WOH)-/,'')}</span>
+                         </div>
+                         <div>
+                             <h3 class="font-bold text-lg md:text-xl ${isArrived ? 'text-emerald-50' : 'text-slate-300'} leading-tight">${item.name}</h3>
+                             <p class="text-sm ${isArrived ? 'text-emerald-400/80' : 'text-slate-500'} font-bold mt-0.5">${item.id}</p>
+                         </div>
+                     </div>
+                     <div class="pr-2">${icon}</div>
+                 </div>
+             `;
+         });
+      }
+      
+      listContainer.innerHTML = html;
+      
+      // เลื่อนหน้าจอไปหาคนที่เพิ่งเช็คอิน
+      if(highlightId) {
+          const el = document.getElementById('row-' + highlightId);
+          if(el) {
+              // หน่วงเวลาเล็กน้อยเพื่อให้ Render เสร็จก่อนเลื่อนไปหา
+              setTimeout(() => {
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              }, 100);
+              // ล้างค่า Highlight หลังจากแสดงผลเสร็จ
+              setTimeout(() => { highlightId = null; }, 3000);
+          }
+      }
+    }
+
+    // ==========================================
+    // ส่วนของการส่งข้อมูลเช็คอิน
+    // ==========================================
+    function handleCheckinSubmit(e) {
+      e.preventDefault();
+      let codeVal = '';
+      
+      if (currentInputMode === 'id') {
+        const prefix = document.getElementById('idPrefix').value;
+        const num = document.getElementById('idCodeOnly').value.trim();
+        if (!num) return;
+        
+        // เติม 0 ด้านหน้าให้ครบ 4 หลัก (เช่น พิมพ์ 15 จะกลายเป็น 0015)
+        const paddedNum = ("0000" + num).slice(-4);
+        codeVal = prefix + paddedNum; // เช่น OH-0015
+      } else {
+        codeVal = document.getElementById('nameSearchInput').value.trim();
+        if (!codeVal) return;
+      }
+      
+      submitCheckin(codeVal);
+    }
+
+    function submitCheckin(codeVal) {
+      const btn = document.getElementById('submitBtn');
+
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fi fi-sr-spinner animate-spin text-xl"></i> กำลังตรวจสอบ...';
+      btn.classList.add('opacity-70');
+
+      fetch(GAS_URL, {
+        method: 'POST',
+        redirect: 'follow',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'checkin', data: { code: codeVal } })
+      })
+      .then(res => res.json())
+      .then(data => {
+        btn.disabled = false;
+        btn.innerHTML = 'ยืนยันการเช็คอิน <i class="fi fi-sr-arrow-right mt-1"></i>';
+        btn.classList.remove('opacity-70');
+
+        if (data.status === 'success') {
+          // ปิดกล้องหลังเช็คอินสำเร็จ
+          if(isCameraOpen) toggleCamera();
+
+          Swal.fire({
+            toast: true, position: 'top',
+            icon: 'success', title: `เช็คอินสำเร็จ!<br>${data.name}`,
+            showConfirmButton: false, timer: 2500,
+            customClass: { popup: 'modern-popup border border-emerald-200' }
+          });
+
+          // อัปเดตข้อมูลใน List แบบ Real-time ทันที
+          let targetItem = attendees.find(a => a.id === data.id);
+          if(targetItem) {
+              targetItem.status = 'มาแล้ว'; 
+              highlightId = targetItem.id;
+              document.getElementById('filterInput').value = ''; // เคลียร์ช่องค้นหาถ้ามีการค้นค้างไว้
+              renderUI(); 
+          } else {
+              fetchAttendees();
+          }
+
+        } 
+        else if (data.status === 'already') {
+          if(isCameraOpen) toggleCamera();
+          Swal.fire({
+            icon: 'warning', title: 'เช็คอินไปแล้ว',
+            html: `<strong class="text-orange-500">${data.name}</strong><br>ได้ทำการเช็คอินเข้าระบบไปก่อนหน้านี้แล้ว`,
+            confirmButtonText: 'ตกลง', confirmButtonColor: '#0f172a',
+            customClass: { popup: 'modern-popup' }
+          });
+        } 
+        else {
+          Swal.fire({
+            icon: 'error', title: 'ไม่พบข้อมูล',
+            text: `ไม่พบข้อมูล "${codeVal}" ในระบบ กรุณาตรวจสอบอีกครั้ง`,
+            confirmButtonText: 'ลองใหม่', confirmButtonColor: '#ef4444',
+            customClass: { popup: 'modern-popup' }
+          });
+        }
+        
+        // ล้างช่องกรอกและ Focus รอคนต่อไป
+        document.getElementById('idCodeOnly').value = '';
+        document.getElementById('nameSearchInput').value = '';
+        if (currentInputMode === 'id') document.getElementById('idCodeOnly').focus();
+        else document.getElementById('nameSearchInput').focus();
+      })
+      .catch(err => {
+        btn.disabled = false;
+        btn.innerHTML = 'ยืนยันการเช็คอิน <i class="fi fi-sr-arrow-right mt-1"></i>';
+        btn.classList.remove('opacity-70');
+        Swal.fire({ icon: 'error', title: 'การเชื่อมต่อขัดข้อง', text: 'กรุณาลองใหม่อีกครั้ง' });
+      });
+    }
+  </script>
+</body>
+</html>
