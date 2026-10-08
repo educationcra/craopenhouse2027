@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>E-Ticket & เกียรติบัตร - CRA Open House</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/uicons-solid-rounded/css/uicons-solid-rounded.css'>
+  
+  <!-- เพิ่ม Library สร้าง QR Code บนเครื่อง -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <style> body { font-family: 'Noto Sans Thai', sans-serif; background-color: #f8fafc; } .modern-popup { border-radius: 24px !important; font-family: 'Noto Sans Thai', sans-serif !important; } </style>
+</head>
+<body class="min-h-screen flex flex-col items-center py-10 px-4 relative overflow-hidden">
+
+  <div class="absolute -top-40 -left-40 w-96 h-96 bg-blue-400 rounded-full blur-[100px] opacity-20"></div>
+
+  <div class="w-full max-w-md relative z-10">
+    <a href="home.html" class="inline-flex items-center gap-2 text-slate-500 hover:text-slate-800 font-bold mb-6 bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-sm transition"><i class="fi fi-sr-arrow-small-left mt-1"></i> กลับหน้าหลัก</a>
+
+    <!-- Login Box -->
+    <div id="loginBox" class="bg-white rounded-3xl shadow-xl p-8 border border-slate-100 text-center">
+      <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6 text-blue-500"><i class="fi fi-sr-smartphone text-4xl mt-1"></i></div>
+      <h2 class="text-2xl font-black text-slate-800 mb-2">ตรวจสอบสถานะเพื่อรับเกียรติบัตร</h2>
+      <p class="text-slate-500 font-bold mb-6 text-sm">กรุณากรอกเบอร์โทรศัพท์ที่ใช้ลงทะเบียน</p>
+
+      <form onsubmit="checkTicket(event)">
+        <div class="relative mb-6">
+          <i class="fi fi-sr-phone-call absolute left-5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+          <input type="tel" id="phoneInput" class="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl py-4 pl-14 pr-4 text-xl font-black text-slate-800 outline-none focus:border-blue-500 transition-colors text-center tracking-widest" placeholder="08XXXXXXXX" maxlength="10" minlength="10" oninput="this.value=this.value.replace(/\D/g, '')" required>
+        </div>
+        <button type="submit" id="btnCheck" class="w-full bg-slate-800 text-white font-black py-4 rounded-2xl hover:bg-slate-700 transition shadow-lg flex justify-center items-center gap-2">ตรวจสอบข้อมูล <i class="fi fi-sr-arrow-right mt-1"></i></button>
+      </form>
+    </div>
+
+    <!-- Dashboard Box (Hidden initially) -->
+    <div id="dashboardBox" class="hidden space-y-6">
+      
+      <!-- E-Ticket Card -->
+      <div class="bg-gradient-to-b from-[#1e3a8a] to-[#3b82f6] rounded-3xl shadow-2xl p-8 text-center relative border border-blue-400/50">
+        <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-orange-500 text-white px-6 py-1 rounded-full font-black text-xs uppercase tracking-widest shadow-md">E-Ticket ประจำตัว</div>
+        
+        <!-- เพิ่มการแสดงผลประเภทตรงนี้ -->
+        <div id="showType" class="mt-4 mb-2 inline-block bg-white/20 backdrop-blur-sm text-white px-4 py-1 rounded-full font-bold text-sm">--</div>
+        
+        <p class="text-blue-200 font-bold text-xs uppercase tracking-widest mt-1 mb-1">รหัสประจำตัว</p>
+        <div class="text-5xl font-black tracking-widest text-white mb-2" id="showId">--</div>
+        <div class="text-lg font-bold text-blue-100 mb-6 truncate" id="showName">--</div>
+        <div class="bg-white p-4 rounded-2xl shadow-inner mx-auto w-48 h-48 border-2 border-dashed border-blue-200 flex justify-center items-center">
+          <div id="showQr" class="w-full h-full flex justify-center items-center"></div>
+        </div>
+      </div>
+
+      <!-- Certificate Status Card -->
+      <div class="bg-white rounded-3xl shadow-lg p-6 border border-slate-100 relative overflow-hidden">
+        <h3 class="font-black text-slate-800 text-lg flex items-center gap-2 border-b border-slate-100 pb-4 mb-4"><i class="fi fi-sr-diploma text-orange-500"></i> สถานะเกียรติบัตร</h3>
+        
+        <div id="statusWrap">
+          <!-- Render via JS based on status -->
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwDhvM_hVuC-YRXCt58u6kDxIXtPLZrcvufI7oWqFSMgg7g_Gf9aEYB42NyYMSCO5IlYQ/exec';
+
+    function checkTicket(e) {
+      e.preventDefault();
+      const phone = document.getElementById('phoneInput').value;
+
+      if (phone.length !== 10) {
+        Swal.fire({ icon: 'warning', title: 'เบอร์โทรศัพท์ไม่ถูกต้อง', text: 'กรุณากรอกเบอร์โทรศัพท์ให้ครบ 10 หลัก', confirmButtonColor: '#f97316', customClass: { popup: 'modern-popup' } });
+        return;
+      }
+
+      const btn = document.getElementById('btnCheck');
+      btn.innerHTML = '<i class="fi fi-sr-spinner animate-spin"></i> กำลังตรวจสอบ...'; btn.disabled = true;
+
+      fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'checkTicket', data: { phone: phone } }) })
+      .then(res => res.json())
+      .then(data => {
+        btn.innerHTML = 'ตรวจสอบข้อมูล <i class="fi fi-sr-arrow-right mt-1"></i>'; btn.disabled = false;
+        
+        if (data.status === 'success') {
+          document.getElementById('loginBox').classList.add('hidden');
+          document.getElementById('dashboardBox').classList.remove('hidden');
+          
+          // แก้ไขการแสดงผล ID และเพิ่มประเภท
+          document.getElementById('showId').innerText = data.data.id;
+          document.getElementById('showName').innerText = data.data.name;
+          document.getElementById('showType').innerText = data.data.type;
+          
+          const qrContainer = document.getElementById('showQr');
+          qrContainer.innerHTML = ""; 
+          new QRCode(qrContainer, {
+              text: data.data.id,
+              width: 150,
+              height: 150,
+              colorDark : "#1e3a8a",
+              colorLight : "#ffffff",
+              correctLevel : QRCode.CorrectLevel.H
+          });
+
+          renderStatus(data.data);
+
+          // 🌟 เพิ่มเงื่อนไข: ถ้าเป็นนักเรียนและยังไม่ได้ทำฟอร์ม ให้แสดง Popup เตือนทันที
+          if (data.data.type !== 'ผู้ปกครองและบุคคลทั่วไป' && data.data.formStatus !== 'ทำแล้ว') {
+            Swal.fire({ 
+              icon: 'warning', 
+              title: 'ยังไม่ได้ทำแบบสอบถาม', 
+              html: '<span class="text-slate-600">ระบบยังไม่พบข้อมูลในแบบสอบถามของคุณ</span><br><span class="text-sm text-slate-500 mt-2 block">กรุณาทำแบบสอบถามให้เสร็จสิ้นก่อน<br>แล้วลองกลับมาตรวจสอบสถานะใหม่อีกครั้งนะครับ</span>',
+              showCancelButton: true,
+              confirmButtonText: '<i class="fi fi-sr-document mt-1"></i> ไปทำแบบสอบถาม',
+              cancelButtonText: 'ดู E-Ticket อย่างเดียว',
+              confirmButtonColor: '#f97316',
+              cancelButtonColor: '#94a3b8',
+              customClass: { popup: 'modern-popup' } 
+            }).then((result) => {
+              if (result.isConfirmed) {
+                window.location.href = 'form.html'; // ลิงก์ไปยังหน้าฟอร์ม
+              }
+            });
+          }
+
+        } else {
+          // กรณีเบอร์นี้ไม่ได้ลงทะเบียนเอาไว้ตั้งแต่แรก
+          Swal.fire({ 
+            icon: 'error', 
+            title: 'ไม่พบข้อมูล E-Ticket', 
+            text: 'เบอร์โทรศัพท์นี้ไม่ได้ลงทะเบียนไว้ในระบบ', 
+            customClass: { popup: 'modern-popup' } 
+          });
+        }
+      }).catch(() => { btn.innerHTML = 'ตรวจสอบข้อมูล'; btn.disabled = false; Swal.fire('Error', 'การเชื่อมต่อขัดข้อง', 'error'); });
+    }
+
+    function renderStatus(data) {
+      const wrap = document.getElementById('statusWrap');
+      
+      if (data.type === 'ผู้ปกครองและบุคคลทั่วไป') {
+        wrap.innerHTML = `<div class="bg-slate-50 p-4 rounded-xl text-center"><i class="fi fi-sr-info text-2xl text-slate-400 mb-2 block"></i><p class="font-bold text-slate-600">ประเภทบุคคลทั่วไป<br>ไม่มีการออกเกียรติบัตรครับ</p></div>`;
+        return;
+      }
+
+      if (data.formStatus !== 'ทำแล้ว') {
+        wrap.innerHTML = `
+          <div class="bg-rose-50 border border-rose-200 p-4 rounded-xl flex items-start gap-4 mb-4">
+            <i class="fi fi-sr-exclamation text-rose-500 text-2xl mt-1"></i>
+            <div><h4 class="font-black text-rose-700">ยังไม่ได้ทำแบบสอบถาม</h4><p class="text-rose-600/80 text-sm font-bold mt-1">กรุณาทำแบบสอบถามเพื่อขอรับเกียรติบัตร</p></div>
+          </div>
+          <a href="form.html" class="w-full block text-center bg-orange-500 text-white font-black py-3 rounded-xl hover:bg-orange-600 transition shadow-md">ไปทำแบบสอบถาม</a>
+        `;
+      } else if (data.certStatus === 'รออนุมัติ' || data.certStatus === '-') {
+        wrap.innerHTML = `
+          <div class="bg-orange-50 border border-orange-200 p-4 rounded-xl flex items-start gap-4">
+            <i class="fi fi-sr-time-fast text-orange-500 text-2xl mt-1"></i>
+            <div><h4 class="font-black text-orange-700">รอการอนุมัติจากเจ้าหน้าที่</h4><p class="text-orange-600/80 text-sm font-bold mt-1 leading-snug">กรุณานำ QR Code ด้านบนไปแสดงที่จุดสแกน เพื่อให้เจ้าหน้าที่ยืนยันการรับเกียรติบัตร</p></div>
+          </div>
+        `;
+      } else if (data.certStatus === 'อนุมัติแล้ว') {
+        const linkHtml = (data.certLink !== '-' && data.certLink !== '') 
+          ? `<a href="${data.certLink}" target="_blank" class="w-full flex justify-center items-center gap-2 bg-gradient-to-r from-blue-600 to-sky-500 text-white font-black py-4 rounded-xl hover:shadow-lg transition shadow-md mt-4"><i class="fi fi-sr-download mt-1"></i> ดาวน์โหลดเกียรติบัตร</a>`
+          : `<div class="mt-4 text-center text-sm font-bold text-emerald-600 bg-emerald-50 py-3 rounded-xl border border-emerald-100">อนุมัติเรียบร้อย ระบบกำลังจัดเตรียมลิงก์...</div>`;
+        
+        wrap.innerHTML = `
+          <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-xl flex items-start gap-4">
+            <div class="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0"><i class="fi fi-sr-check mt-1"></i></div>
+            <div><h4 class="font-black text-emerald-700">อนุมัติเกียรติบัตรเรียบร้อย</h4><p class="text-emerald-600/80 text-sm font-bold mt-1">คุณสามารถดาวน์โหลดเกียรติบัตรได้ทันทีเมื่อระบบสร้างลิงก์เสร็จสิ้น</p></div>
+          </div>
+          ${linkHtml}
+        `;
+      }
+    }
+  </script>
+</body>
+</html>
