@@ -195,9 +195,6 @@
       document.getElementById('idCodeOnly').focus();
     };
 
-    // ==========================================
-    // ส่วนของการจัดการ Input และ โหมดค้นหา
-    // ==========================================
     function switchMode(mode) {
       currentInputMode = mode;
       const indicator = document.getElementById('modeIndicator');
@@ -270,9 +267,6 @@
        if(e.target.id !== 'nameSearchInput') document.getElementById('nameDropdown')?.classList.add('hidden');
     });
 
-    // ==========================================
-    // ส่วนของการจัดการ QR Scanner
-    // ==========================================
     function toggleCamera() {
       const btn = document.getElementById('toggleCameraBtn');
       const readerBox = document.getElementById('reader');
@@ -295,7 +289,6 @@
           { facingMode: "environment" }, 
           { fps: 10, qrbox: { width: 250, height: 250 } },
           (decodedText, decodedResult) => {
-            // เมื่อสแกนเจอ QR Code ยิงเช็คอินทันที
             if (navigator.vibrate) navigator.vibrate(200);
             submitCheckin(decodedText);
           }
@@ -311,9 +304,6 @@
       }
     }
 
-    // ==========================================
-    // ส่วนของการดึงและแสดงผลข้อมูล
-    // ==========================================
     function fetchAttendees() {
       const listContainer = document.getElementById('attendee-list');
       const loading = document.getElementById('loadingList');
@@ -337,7 +327,6 @@
     function renderUI() {
       const filterText = document.getElementById('filterInput').value.toLowerCase().trim();
 
-      // คัดกรองจากคำค้นหา
       let filteredAttendees = attendees;
       if (filterText) {
         filteredAttendees = attendees.filter(a => 
@@ -346,11 +335,9 @@
         );
       }
 
-      // แยกกลุ่มคนที่มาแล้ว และ ยังไม่มา
       let arrived = filteredAttendees.filter(a => a.status === 'มาแล้ว');
       let waiting = filteredAttendees.filter(a => a.status !== 'มาแล้ว');
       
-      // เรียงลำดับตามเลข ID ภายในกลุ่ม
       const sortById = (a, b) => {
           let numA = parseInt(a.id.split('-')[1]);
           let numB = parseInt(b.id.split('-')[1]);
@@ -359,12 +346,11 @@
       arrived.sort(sortById);
       waiting.sort(sortById);
 
-      // 1. อัปเดต Dashboard (นับจากทั้งหมด ไม่ใช่จากการ Filter)
+      // อัปเดต Dashboard
       document.getElementById('stat-total').textContent = attendees.length;
       document.getElementById('stat-arrived').textContent = attendees.filter(a => a.status === 'มาแล้ว').length;
       document.getElementById('stat-waiting').textContent = attendees.filter(a => a.status !== 'มาแล้ว').length;
 
-      // 2. Render รายชื่อ (ดันคนที่ มาแล้ว ขึ้นไปไว้บนสุด)
       const listContainer = document.getElementById('attendee-list');
       let html = '';
       
@@ -375,32 +361,44 @@
       } else {
          allDisplay.forEach(item => {
              const isArrived = item.status === 'มาแล้ว';
-             const isHighlight = item.id === highlightId; // ตรวจสอบว่าใช่คนที่เพิ่งเช็คอินไหม
+             const isHighlight = item.id === highlightId; 
              
-             // กำหนดสไตล์การ์ด
              const baseClass = "flex items-center justify-between p-4 rounded-2xl border transition-all duration-300 ";
              let stateClass = isArrived 
                  ? "bg-emerald-500/10 border-emerald-500/30" 
                  : "bg-slate-800 border-slate-700 opacity-60 hover:opacity-100";
                  
-             if (isHighlight) stateClass += " highlight-row"; // ใส่ Animation ให้เด้ง
+             if (isHighlight) stateClass += " highlight-row";
 
              const icon = isArrived 
                ? '<i class="fi fi-sr-check-circle text-emerald-400 text-3xl"></i>' 
                : '<i class="fi fi-sr-time-fast text-slate-500 text-2xl"></i>';
 
+             // === สร้างป้ายบอกประเภท (เม็ดยา) ท้ายชื่อ ===
+             const typeStr = item.type || 'ไม่ระบุ';
+             const isStudent = (typeStr === 'นักเรียน' || typeStr === 'นักศึกษา');
+             // ถ้านักเรียน/นักศึกษา ให้ป้ายสีฟ้า ถ้าไม่ใช่ให้ป้ายสีเทา
+             const badgeClass = isStudent 
+                 ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' 
+                 : 'bg-slate-600/50 text-slate-300 border-slate-500/50';
+                 
+             const typePill = `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border ${badgeClass} shrink-0 mt-1 md:mt-0 md:ml-2">${typeStr}</span>`;
+
              html += `
                  <div id="row-${item.id}" class="${baseClass} ${stateClass}">
-                     <div class="flex items-center gap-4">
+                     <div class="flex items-center gap-4 w-full">
                          <div class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${isArrived ? 'bg-emerald-500/20' : 'bg-slate-700'}">
                              <span class="font-black text-lg ${isArrived ? 'text-emerald-400' : 'text-slate-400'}">${item.id.replace(/^(OH|WOH)-/,'')}</span>
                          </div>
-                         <div>
-                             <h3 class="font-bold text-lg md:text-xl ${isArrived ? 'text-emerald-50' : 'text-slate-300'} leading-tight">${item.name}</h3>
+                         <div class="flex-1 overflow-hidden">
+                             <div class="flex flex-col md:flex-row md:items-center">
+                                 <h3 class="font-bold text-lg md:text-xl ${isArrived ? 'text-emerald-50' : 'text-slate-300'} leading-tight truncate">${item.name}</h3>
+                                 ${typePill}
+                             </div>
                              <p class="text-sm ${isArrived ? 'text-emerald-400/80' : 'text-slate-500'} font-bold mt-0.5">${item.id}</p>
                          </div>
                      </div>
-                     <div class="pr-2">${icon}</div>
+                     <div class="pl-2 shrink-0">${icon}</div>
                  </div>
              `;
          });
@@ -408,23 +406,15 @@
       
       listContainer.innerHTML = html;
       
-      // เลื่อนหน้าจอไปหาคนที่เพิ่งเช็คอิน
       if(highlightId) {
           const el = document.getElementById('row-' + highlightId);
           if(el) {
-              // หน่วงเวลาเล็กน้อยเพื่อให้ Render เสร็จก่อนเลื่อนไปหา
-              setTimeout(() => {
-                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-              }, 100);
-              // ล้างค่า Highlight หลังจากแสดงผลเสร็จ
+              setTimeout(() => { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
               setTimeout(() => { highlightId = null; }, 3000);
           }
       }
     }
 
-    // ==========================================
-    // ส่วนของการส่งข้อมูลเช็คอิน
-    // ==========================================
     function handleCheckinSubmit(e) {
       e.preventDefault();
       let codeVal = '';
@@ -434,9 +424,8 @@
         const num = document.getElementById('idCodeOnly').value.trim();
         if (!num) return;
         
-        // เติม 0 ด้านหน้าให้ครบ 4 หลัก (เช่น พิมพ์ 15 จะกลายเป็น 0015)
         const paddedNum = ("0000" + num).slice(-4);
-        codeVal = prefix + paddedNum; // เช่น OH-0015
+        codeVal = prefix + paddedNum;
       } else {
         codeVal = document.getElementById('nameSearchInput').value.trim();
         if (!codeVal) return;
@@ -465,22 +454,55 @@
         btn.classList.remove('opacity-70');
 
         if (data.status === 'success') {
-          // ปิดกล้องหลังเช็คอินสำเร็จ
           if(isCameraOpen) toggleCamera();
 
+          let typeBadgeColor = (data.type === 'นักเรียน' || data.type === 'นักศึกษา') 
+              ? 'bg-blue-100 text-blue-700 border-blue-300' 
+              : 'bg-slate-100 text-slate-700 border-slate-300';
+              
+          let typeBadge = `<div class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full border-2 ${typeBadgeColor} font-black text-sm mb-3 shadow-sm">
+              <i class="fi fi-sr-user mt-0.5"></i> ประเภท: ${data.type || 'ไม่ระบุ'}
+          </div>`;
+
+          let giveawayHtml = '';
+          if (data.type === 'นักเรียน' || data.type === 'นักศึกษา') {
+            giveawayHtml = `
+              <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mt-4 text-left shadow-inner">
+                <p class="font-bold text-blue-800 mb-2 flex items-center gap-2"><i class="fi fi-sr-gift"></i> สิ่งที่ต้องมอบให้:</p>
+                <ul class="text-blue-700 font-bold space-y-2 ml-1">
+                  <li class="flex items-center gap-2"><i class="fi fi-sr-id-badge text-blue-400 text-lg"></i> ป้ายชื่อ (Name Tag)</li>
+                  <li class="flex items-center gap-2"><i class="fi fi-sr-book-alt text-blue-400 text-lg"></i> สมุด PASSPORT</li>
+                  <li class="flex items-center gap-2"><i class="fi fi-sr-shopping-bag text-blue-400 text-lg"></i> ถุงผ้า</li>
+                </ul>
+              </div>`;
+          } else {
+            giveawayHtml = `
+              <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 mt-4 text-left shadow-inner">
+                <p class="font-bold text-slate-700 mb-2 flex items-center gap-2"><i class="fi fi-sr-gift"></i> สิ่งที่ต้องมอบให้:</p>
+                <ul class="text-slate-600 font-bold space-y-2 ml-1">
+                  <li class="flex items-center gap-2"><i class="fi fi-sr-id-badge text-slate-400 text-lg"></i> ป้ายชื่อ (Name Tag) อย่างเดียว</li>
+                </ul>
+              </div>`;
+          }
+
           Swal.fire({
-            toast: true, position: 'top',
-            icon: 'success', title: `เช็คอินสำเร็จ!<br>${data.name}`,
-            showConfirmButton: false, timer: 2500,
-            customClass: { popup: 'modern-popup border border-emerald-200' }
+            icon: 'success', 
+            title: 'เช็คอินสำเร็จ!',
+            html: `${typeBadge}
+                   <div class="text-xl md:text-2xl font-black text-slate-800 leading-tight">${data.name}</div>
+                   <div class="text-slate-500 font-bold mb-2">${data.id}</div>
+                   ${giveawayHtml}`,
+            confirmButtonText: '<i class="fi fi-sr-check-circle mt-1"></i> มอบของเรียบร้อย',
+            confirmButtonColor: '#0f172a',
+            allowOutsideClick: false,
+            customClass: { popup: 'modern-popup border-4 border-emerald-400' }
           });
 
-          // อัปเดตข้อมูลใน List แบบ Real-time ทันที
           let targetItem = attendees.find(a => a.id === data.id);
           if(targetItem) {
               targetItem.status = 'มาแล้ว'; 
               highlightId = targetItem.id;
-              document.getElementById('filterInput').value = ''; // เคลียร์ช่องค้นหาถ้ามีการค้นค้างไว้
+              document.getElementById('filterInput').value = ''; 
               renderUI(); 
           } else {
               fetchAttendees();
@@ -505,7 +527,6 @@
           });
         }
         
-        // ล้างช่องกรอกและ Focus รอคนต่อไป
         document.getElementById('idCodeOnly').value = '';
         document.getElementById('nameSearchInput').value = '';
         if (currentInputMode === 'id') document.getElementById('idCodeOnly').focus();
