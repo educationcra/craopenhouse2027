@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>แบบสอบถามความพึงพอใจ - CRA Open House 2027</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/uicons-solid-rounded/css/uicons-solid-rounded.css'>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  
+  <style>
+    body { font-family: 'Noto Sans Thai', sans-serif; background-color: #f8fafc; -webkit-tap-highlight-color: transparent; }
+    
+    .glass-input { width: 100%; padding: 1rem 1.25rem; border-radius: 1rem; border: 2px solid #e2e8f0; outline: none; transition: 0.3s; font-weight: 600; color: #1e293b; background: white; }
+    .glass-input:focus { border-color: #f97316; box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.1); }
+    
+    .modern-popup { border-radius: 24px !important; font-family: 'Noto Sans Thai', sans-serif !important; }
+    
+    .step-section { display: none; animation: fadeIn 0.4s ease-out forwards; opacity: 0; transform: translateY(10px); }
+    .step-section.active { display: block; }
+    @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
+
+    .type-card { position: relative; display: block; cursor: pointer; border: 2px solid #e2e8f0; border-radius: 1.5rem; padding: 1.5rem; background: white; transition: 0.3s; height: 100%; }
+    .type-card:hover { border-color: #cbd5e1; background: #f8fafc; transform: translateY(-2px); }
+    .type-card input { display: none; }
+    .type-card input:checked + .card-content { color: #ea580c; }
+    .type-card:has(input:checked) { border-color: #f97316; background: #fff7ed; box-shadow: 0 10px 25px -5px rgba(249, 115, 22, 0.15); }
+    .type-card:has(input:checked) .check-icon { opacity: 1; transform: scale(1); }
+    .check-icon { position: absolute; top: 1rem; right: 1rem; width: 1.5rem; height: 1.5rem; background: #f97316; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; opacity: 0; transform: scale(0); transition: 0.3s; font-size: 0.75rem; }
+
+    .cb-wrapper { display: flex; align-items: flex-start; gap: 12px; cursor: pointer; padding: 14px 16px; border: 2px solid #e2e8f0; border-radius: 12px; background: white; transition: 0.2s; margin-bottom: 8px;}
+    .cb-wrapper:hover { border-color: #cbd5e1; background: #f8fafc; }
+    .cb-wrapper input { display: none; }
+    .cb-box { width: 24px; height: 24px; border: 2px solid #cbd5e1; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink:0; transition: 0.2s; background: white; margin-top: 2px;}
+    .cb-wrapper input:checked + .cb-box { background: #f97316; border-color: #f97316; }
+    .cb-wrapper input:checked + .cb-box::after { content: '✓'; color: white; font-weight: 900; font-size: 14px; }
+    .cb-wrapper input:checked ~ span { color: #ea580c; font-weight: 700; }
+    .cb-wrapper:has(input:checked) { background: #fff7ed; border-color: #ffedd5; }
+
+    /* 🌟 ระบบให้คะแนนแบบดาว (Glow & Pulse Effect) 🌟 */
+    .radio-stars { display: flex; justify-content: flex-end; gap: 6px; flex-direction: row-reverse; position: relative; width: fit-content; margin-top: 10px;}
+    @media(min-width: 768px) { .radio-stars { margin-top: 0; } }
+    .radio-stars > input { position: absolute; appearance: none; opacity: 0; }
+    .radio-stars > label { cursor: pointer; width: 34px; height: 34px; position: relative; display: inline-block; transition: transform 0.3s ease; }
+    .radio-stars > label > svg { fill: #e2e8f0; transition: fill 0.3s ease, filter 0.3s ease; width: 100%; height: 100%; }
+    
+    .radio-stars > label::before, .radio-stars > label::after { content: ""; position: absolute; width: 6px; height: 6px; background-color: #ff9e0b; border-radius: 50%; opacity: 0; transform: scale(0); transition: transform 0.4s ease, opacity 0.4s ease; pointer-events: none; }
+    .radio-stars > label::before { top: -8px; left: 50%; transform: translateX(-50%) scale(0); }
+    .radio-stars > label::after { bottom: -8px; left: 50%; transform: translateX(-50%) scale(0); }
+    
+    .radio-stars > label:hover::before, .radio-stars > label:hover::after { opacity: 1; transform: translateX(-50%) scale(1.5); animation: particle-explosion 1s ease-out; }
+    .radio-stars > label:hover { transform: scale(1.15); animation: pulse-star 0.6s infinite alternate; }
+    .radio-stars > label:hover > svg, .radio-stars > label:hover ~ label > svg { fill: #ff9e0b; filter: drop-shadow(0 0 10px rgba(255, 158, 11, 0.6)); animation: shimmer 1s ease infinite alternate; }
+    
+    /* เมื่อถูก Check ให้ดวงนั้นและดวงที่อยู่ทางขวา (ใน DOM) สว่าง */
+    .radio-stars > input:checked + label > svg, .radio-stars > input:checked ~ label > svg { fill: #f97316; filter: drop-shadow(0 0 12px rgba(249, 115, 22, 0.8)); }
+    .radio-stars > input:checked + label { animation: pulse-star 0.8s infinite alternate; }
+
+    @keyframes pulse-star { 0% { transform: scale(1); } 100% { transform: scale(1.1); } }
+    @keyframes particle-explosion { 0% { opacity: 0; transform: scale(0.5); } 50% { opacity: 1; transform: scale(1.2); } 100% { opacity: 0; transform: scale(0.5); } }
+    @keyframes shimmer { 0% { filter: drop-shadow(0 0 5px rgba(255, 158, 11, 0.4)); } 100% { filter: drop-shadow(0 0 15px rgba(255, 158, 11, 0.9)); } }
+
+    /* Custom Dropdown (Fix ตัดขอบ) */
+    .c-select-wrapper { position: relative; width: 100%; user-select: none; z-index: 50;}
+    .c-select-trigger { background: #ffffff; border: 2px solid #e2e8f0; padding: 1rem 1.25rem; border-radius: 1rem; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: all 0.2s; font-weight: 700; color: #334155; }
+    .c-select-trigger:hover { border-color: #f97316; }
+    .c-select-wrapper.open .c-select-trigger { border-color: #f97316; box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.1); }
+    .c-options { position: absolute; top: calc(100% + 8px); left: 0; right: 0; border: 2px solid #e2e8f0; border-radius: 1.25rem; background: #fff; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); opacity: 0; visibility: hidden; pointer-events: none; max-height: 300px; overflow-y: auto; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.15); transform: translateY(-10px) scale(0.98); }
+    .c-select-wrapper.open .c-options { opacity: 1; visibility: visible; pointer-events: all; transform: translateY(0) scale(1); }
+    .c-option { padding: 14px 20px; display: flex; align-items: center; gap: 14px; cursor: pointer; transition: 0.15s; border-bottom: 1px solid #f1f5f9; font-weight: 700; color: #64748b; line-height: 1.3; }
+    .c-option:last-child { border-bottom: none; }
+    .c-option:hover { background-color: #fff7ed; color: #ea580c; padding-left: 24px; }
+    .c-options::-webkit-scrollbar { width: 6px; }
+    .c-options::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+    #autocomplete-list, #emailDomains { position: absolute; z-index: 60; background: white; border: 2px solid #e2e8f0; border-radius: 1rem; width: 100%; max-height: 220px; overflow-y: auto; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); display: none; margin-top: 4px; }
+    #autocomplete-list div, #emailDomains div { padding: 14px 20px; cursor: pointer; font-weight: 600; border-bottom: 1px solid #f1f5f9; transition: 0.2s; color: #475569; }
+    #autocomplete-list div:hover, #emailDomains div:hover { background: #fff7ed; color: #ea580c; padding-left: 24px; }
+
+    .btn-action { background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); color: white; transition: all 0.3s ease; }
+    .btn-action:hover { transform: translateY(-2px); box-shadow: 0 10px 20px -5px rgba(249, 115, 22, 0.4); }
+  </style>
+</head>
+<body class="pb-10 relative">
+
+  <!-- Top Decoration -->
+  <div class="w-full h-2 bg-gradient-to-r from-orange-500 via-rose-500 to-blue-600 fixed top-0 z-50"></div>
+
+  <div class="max-w-4xl mx-auto px-4 pt-8">
+    
+    <!-- Header & Back Button -->
+    <div class="flex items-center justify-between mb-6">
+      <a href="home.html" class="inline-flex items-center gap-2 text-slate-500 hover:text-orange-500 font-bold bg-white px-5 py-2.5 rounded-xl border border-slate-200 shadow-sm transition"><i class="fi fi-sr-arrow-small-left mt-1"></i> กลับหน้าหลัก</a>
+      <img src="https://i.postimg.cc/qzxLdhxJ/LOGO-CRAOH2027-01.png" class="h-10 opacity-80" alt="Logo">
+    </div>
+
+    <div class="bg-white rounded-[2rem] shadow-xl p-6 md:p-10 border border-slate-100 relative">
+      
+      <!-- Stepper -->
+      <div id="stepperContainer" class="mb-10 relative max-w-2xl mx-auto px-2">
+          <div class="flex items-center justify-between relative z-10">
+              <div class="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1.5 bg-slate-100 -z-10 rounded-full"></div>
+              <div class="absolute left-0 top-1/2 -translate-y-1/2 h-1.5 bg-orange-500 transition-all duration-500 rounded-full" id="progressBar" style="width: 0%;"></div>
+
+              <!-- Step 1 -->
+              <div class="flex flex-col items-center gap-2 relative z-20">
+                  <div id="dot1" class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-orange-500 text-white flex justify-center items-center font-black text-lg md:text-xl shadow-lg ring-4 ring-orange-50 transition-all"><i class="fi fi-sr-user mt-1"></i></div>
+                  <span class="text-[10px] md:text-xs font-bold text-orange-500 text-center">เริ่ม<br>ต้น</span>
+              </div>
+              <!-- Step 2 -->
+              <div class="flex flex-col items-center gap-2 relative z-20">
+                  <div id="dot2" class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white border-2 border-slate-200 text-slate-400 flex justify-center items-center font-black text-lg md:text-xl transition-all"><i class="fi fi-sr-star mt-1"></i></div>
+                  <span class="text-[10px] md:text-xs font-bold text-slate-400 text-center" id="text-dot2">ความ<br>พึงพอใจ</span>
+              </div>
+              <!-- Step 3 -->
+              <div class="flex flex-col items-center gap-2 relative z-20">
+                  <div id="dot3" class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white border-2 border-slate-200 text-slate-400 flex justify-center items-center font-black text-lg md:text-xl transition-all"><i class="fi fi-sr-book-alt mt-1"></i></div>
+                  <span class="text-[10px] md:text-xs font-bold text-slate-400 text-center" id="text-dot3">ความ<br>สนใจ</span>
+              </div>
+              <!-- Step 4 -->
+              <div class="flex flex-col items-center gap-2 relative z-20">
+                  <div id="dot4" class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white border-2 border-slate-200 text-slate-400 flex justify-center items-center font-black text-lg md:text-xl transition-all"><i class="fi fi-sr-check-circle mt-1"></i></div>
+                  <span class="text-[10px] md:text-xs font-bold text-slate-400 text-center" id="text-dot4">ส่ง<br>ข้อมูล</span>
+              </div>
+          </div>
+      </div>
+
+      <form id="surveyForm">
+        
+        <!-- ================= STEP 1: ข้อมูลเบื้องต้น ================= -->
+        <div id="step1" class="step-section active pb-4">
+          <div class="text-center mb-8">
+            <h1 class="text-2xl md:text-3xl font-black text-slate-800 mb-2">ข้อมูลผู้ตอบแบบสอบถาม</h1>
+            <p class="text-slate-500 font-bold">CRA Open House 2027 : Health Science NEXT GEN</p>
+          </div>
+          
+          <div class="space-y-6">
+            <div>
+              <label class="block font-black text-lg mb-4 text-slate-700 text-center">1. ท่านเข้าร่วมงานในฐานะใด? <span class="text-rose-500">*</span></label>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                
+                <label class="type-card" onclick="toggleStudentSection(true)">
+                  <input type="radio" name="userType" value="นักเรียนและนักศึกษาที่มี PASSPORT">
+                  <div class="check-icon"><i class="fi fi-sr-check mt-0.5"></i></div>
+                  <div class="card-content flex flex-col items-center text-center gap-3">
+                    <div class="w-16 h-16 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center text-3xl"><i class="fi fi-sr-graduation-cap mt-2"></i></div>
+                    <div>
+                      <h3 class="font-black text-lg text-slate-800">นักเรียน / นักศึกษา</h3>
+                      <p class="text-sm font-bold text-slate-500 mt-1">มี PASSPORT และต้องการรับเกียรติบัตร</p>
+                    </div>
+                  </div>
+                </label>
+
+                <label class="type-card" onclick="toggleStudentSection(false)">
+                  <input type="radio" name="userType" value="ผู้ปกครองและบุคคลทั่วไป">
+                  <div class="check-icon"><i class="fi fi-sr-check mt-0.5"></i></div>
+                  <div class="card-content flex flex-col items-center text-center gap-3">
+                    <div class="w-16 h-16 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center text-3xl"><i class="fi fi-sr-users-alt mt-2"></i></div>
+                    <div>
+                      <h3 class="font-black text-lg text-slate-800">ผู้ปกครอง / บุคคลทั่วไป</h3>
+                    </div>
+                  </div>
+                </label>
+
+              </div>
+            </div>
+
+            <div id="studentSection" class="hidden mt-6 space-y-6 animate-[fadeIn_0.3s_ease-out]">
+              
+              <!-- กล่องค้นหาข้อมูล (ID / Name) -->
+              <div class="bg-white p-6 md:p-8 rounded-2xl border-2 border-orange-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+                <div class="flex items-center gap-3 mb-6 border-b border-slate-100 pb-4">
+                  <div class="w-10 h-10 bg-orange-50 text-orange-500 rounded-xl flex items-center justify-center text-xl"><i class="fi fi-sr-id-card-clip-alt mt-1"></i></div>
+                  <h3 class="font-black text-xl text-slate-800">ค้นหาข้อมูลของคุณ</h3>
+                </div>
+
+                <!-- โหมดค้นหาด้วย ID -->
+                <div id="searchIdMode">
+                  <label class="block font-bold mb-2 text-slate-700">รหัส ID 4 หลัก <span class="text-rose-500">*</span></label>
+                  <div class="flex flex-col md:flex-row gap-4">
+                    <div class="relative flex-1">
+                      <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-black text-lg">OH-</span>
+                      <input type="number" id="searchIdInput" class="glass-input pl-14 text-lg font-bold tracking-widest text-orange-500" placeholder="0000" oninput="if(this.value.length > 4) this.value = this.value.slice(0,4);" autocomplete="off">
+                    </div>
+                    <button type="button" onclick="triggerIdSearch()" class="bg-slate-800 text-white px-8 py-3 rounded-xl font-bold hover:bg-slate-700 transition shadow-md flex items-center justify-center gap-2 shrink-0">
+                      <i class="fi fi-sr-search"></i> ค้นหา
+                    </button>
+                  </div>
+                  <div class="mt-4 text-center">
+                    <button type="button" onclick="toggleSearchMode('name')" class="text-orange-500 hover:text-orange-600 font-bold text-sm underline decoration-orange-300 underline-offset-4 transition">
+                      ไม่รู้รหัส / จำรหัสไม่ได้? (ค้นหาด้วยชื่อ)
+                    </button>
+                  </div>
+                </div>
+
+                <!-- โหมดค้นหาด้วยชื่อ (ซ่อนตอนแรก) -->
+                <div id="searchNameMode" class="hidden relative">
+                  <label class="block font-bold mb-2 text-slate-700">ค้นหาด้วยชื่อ - นามสกุล <span class="text-rose-500">*</span></label>
+                  <div class="relative z-40">
+                    <i class="fi fi-sr-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" id="searchNameInput" class="glass-input pl-12 text-slate-700 font-bold" placeholder="พิมพ์ชื่อเพื่อค้นหา..." autocomplete="off" oninput="handleSmartSearch(this.value)">
+                  </div>
+                  <div id="autocomplete-list"></div>
+                  <div class="mt-4 text-center">
+                    <button type="button" onclick="toggleSearchMode('id')" class="text-slate-500 hover:text-slate-700 font-bold text-sm underline decoration-slate-300 underline-offset-4 transition">
+                      กลับไปค้นหาด้วย ID
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- กล่องตรวจสอบข้อมูล -->
+              <div id="personalInfoBox" class="bg-slate-50 p-6 md:p-8 rounded-2xl border border-slate-200 opacity-50 pointer-events-none transition-all duration-300 relative">
+                
+                <div class="bg-orange-50 text-orange-800 p-4 md:p-5 rounded-xl font-bold text-sm border-2 border-orange-200 flex items-start gap-3 mb-6 shadow-sm">
+                  <i class="fi fi-sr-triangle-warning mt-1 text-2xl text-orange-500"></i> 
+                  <div>
+                    <span class="block text-orange-900 mb-1 text-base">ตรวจสอบและแก้ไขข้อมูลให้ถูกต้อง</span>
+                    หากมีคำผิด ท่านสามารถพิมพ์แก้ไขในช่องด้านล่างได้เลย <br>
+                    <span class="text-rose-600 font-black mt-1 inline-block">*** ชื่อ-นามสกุลนี้ จะถูกนำไปพิมพ์ลงบน "เกียรติบัตร" ***</span>
+                  </div>
+                </div>
+
+                <input type="hidden" id="finalIdStr">
+                <input type="hidden" id="phoneHidden">
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5 relative z-40">
+                  <div>
+                    <label class="block font-bold mb-2 text-slate-700">ชื่อ - นามสกุล <span class="text-rose-500">*</span></label>
+                    <input type="text" id="fullName" class="glass-input bg-white text-blue-700" placeholder="นายเด็กดี ใจสู้">
+                  </div>
+                  <div class="relative">
+                    <label class="block font-bold mb-2 text-slate-700">อีเมล <span class="text-rose-500">*</span></label>
+                    <input type="email" id="email" class="glass-input bg-white" oninput="showEmailDomains(this.value)" placeholder="example@gmail.com" autocomplete="off">
+                    <div id="emailDomains"></div>
+                  </div>
+                </div>
+                
+                <div class="relative z-30">
+                  <label class="block font-bold mb-2 text-slate-700">รอบการรับสมัครที่ท่านสนใจ <span class="text-rose-500">*</span></label>
+                  <input type="hidden" id="admissionRound" value="">
+                  <div id="dd-admissionRound"></div>
+                </div>
+              </div>
+
+            </div>
+
+            <div class="flex justify-end pt-6 border-t border-slate-100 mt-8">
+              <button type="button" onclick="nextStep(1)" class="btn-action px-10 py-3.5 rounded-xl font-black text-lg flex items-center gap-2">หน้าถัดไป <i class="fi fi-sr-arrow-right mt-1"></i></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= STEP 2: การรับรู้และความพึงพอใจ ================= -->
+        <div id="step2" class="step-section pb-4">
+          <div class="mb-8">
+            <h2 class="text-2xl font-black flex items-center gap-3 text-orange-600"><i class="fi fi-sr-bullhorn"></i> 2. การรับรู้และความพึงพอใจ</h2>
+            <p class="text-slate-500 font-bold mt-1">ข้อมูลส่วนนี้จะช่วยให้เราพัฒนาการจัดงานในครั้งต่อไป</p>
+          </div>
+          
+          <div class="space-y-8">
+            <div class="bg-white border-2 border-slate-100 p-6 rounded-2xl shadow-sm">
+              <label class="block font-black text-lg mb-4 text-slate-800">ท่านรู้จักราชวิทยาลัยจุฬาภรณ์มาก่อนหรือไม่ <span class="text-rose-500">*</span></label>
+              <div class="flex flex-col md:flex-row gap-4">
+                <label class="cb-wrapper flex-1 m-0"><input type="radio" name="knowBefore" value="รู้จัก" onchange="handleKnowBeforeChange()"><div class="cb-box"></div><span class="text-slate-700 font-bold mt-0.5 ml-1">รู้จัก</span></label>
+                <label class="cb-wrapper flex-1 m-0"><input type="radio" name="knowBefore" value="ไม่รู้จัก" onchange="handleKnowBeforeChange()"><div class="cb-box"></div><span class="text-slate-700 font-bold mt-0.5 ml-1">ไม่รู้จัก</span></label>
+              </div>
+            </div>
+
+            <div class="bg-white border-2 border-slate-100 p-6 rounded-2xl shadow-sm">
+              <label id="channelQuestionLabel" class="block font-black text-lg mb-4 text-slate-800 leading-snug">ท่านรู้จักราชวิทยาลัยจุฬาภรณ์จากช่องทางใด <span class="text-sm text-orange-500 font-bold">(ตอบได้มากกว่า 1 ข้อ)</span> <span class="text-rose-500">*</span></label>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-x-4" id="channelsWrap">
+                <!-- Render via JS -->
+              </div>
+              <input type="text" id="otherChannel" class="glass-input mt-3 hidden border-orange-300 bg-orange-50 focus:border-orange-500" placeholder="โปรดระบุช่องทางอื่นๆ...">
+            </div>
+
+            <div class="bg-slate-50 border-2 border-slate-100 p-6 md:p-8 rounded-3xl shadow-sm">
+              <div class="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 mb-6 pb-4 border-b border-slate-200">
+                <div class="flex items-center gap-2">
+                   <i class="fi fi-sr-star text-2xl text-orange-500"></i>
+                   <h3 class="font-black text-lg text-slate-800">ประเมินความพึงพอใจ</h3>
+                </div>
+                <span class="md:ml-auto text-[11px] md:text-xs font-bold text-slate-500 bg-white px-3 py-1.5 rounded-full border border-slate-200 shadow-sm whitespace-nowrap">
+                  5 = มากที่สุด, 4 = มาก, 3 = ปานกลาง, 2 = น้อย, 1 = น้อยที่สุด
+                </span>
+              </div>
+              
+              <div id="ratingsWrap" class="space-y-6">
+                 <!-- Render via JS -->
+              </div>
+            </div>
+
+            <div class="flex justify-between items-center pt-6 border-t border-slate-100 mt-8">
+              <button type="button" onclick="prevStep(2)" class="px-6 py-3 text-slate-400 font-extrabold text-lg hover:text-slate-800 transition-colors">ย้อนกลับ</button>
+              <button type="button" onclick="nextStep(2)" class="btn-action px-10 py-3.5 rounded-xl font-black text-lg flex items-center gap-2">หน้าถัดไป <i class="fi fi-sr-arrow-right mt-1"></i></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= STEP 3: ความสนใจ ================= -->
+        <div id="step3" class="step-section pb-4">
+          <div class="mb-8">
+            <h2 class="text-2xl font-black flex items-center gap-3 text-orange-600"><i class="fi fi-sr-book-alt"></i> 3. ความสนใจหลักสูตรและกิจกรรม</h2>
+            <p class="text-slate-500 font-bold mt-1">ท่านสนใจการเรียนการสอนหรือกิจกรรมใดในงานนี้มากที่สุด</p>
+          </div>
+          
+          <div class="space-y-8">
+            <div class="bg-white border-2 border-slate-100 p-6 md:p-8 rounded-3xl shadow-sm space-y-6">
+              <div class="relative z-30">
+                <label class="block font-black text-lg mb-3 text-slate-800">หลักสูตรที่ท่านสนใจมากที่สุด อันดับที่ 1 <span class="text-rose-500">*</span></label>
+                <input type="hidden" id="course1" value="">
+                <div id="dd-course1"></div>
+              </div>
+              <div class="pt-2 relative z-20">
+                <label class="block font-black text-lg mb-3 text-slate-800">หลักสูตรที่ท่านสนใจมากที่สุด อันดับที่ 2 <span class="text-slate-400 text-sm">(ไม่บังคับ)</span></label>
+                <input type="hidden" id="course2" value="">
+                <div id="dd-course2"></div>
+              </div>
+            </div>
+
+            <div class="bg-white border-2 border-slate-100 p-6 md:p-8 rounded-3xl shadow-sm relative z-10">
+              <label class="block font-black text-lg mb-4 text-slate-800">กิจกรรมที่ท่านชอบใน CRA Open House 2027 <span class="text-sm text-orange-500 font-bold">(ตอบได้มากกว่า 1 ข้อ)</span> <span class="text-rose-500">*</span></label>
+              <div class="space-y-1" id="activitiesWrap"></div>
+            </div>
+
+            <div class="flex justify-between items-center pt-6 border-t border-slate-100 mt-8 relative z-0">
+              <button type="button" onclick="prevStep(3)" class="px-6 py-3 text-slate-400 font-extrabold text-lg hover:text-slate-800 transition-colors">ย้อนกลับ</button>
+              <button type="button" onclick="nextStep(3)" class="btn-action px-10 py-3.5 rounded-xl font-black text-lg flex items-center gap-2">หน้าถัดไป <i class="fi fi-sr-arrow-right mt-1"></i></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= STEP 4: ส่งท้าย & อัปโหลด ================= -->
+        <div id="step4" class="step-section pb-4">
+          <div class="mb-8 text-center">
+            <div class="w-20 h-20 bg-green-50 text-green-500 rounded-full flex items-center justify-center text-4xl mx-auto mb-4 border border-green-100"><i class="fi fi-sr-check-circle mt-2"></i></div>
+            <h2 class="text-2xl font-black text-slate-800 mb-1">ขั้นตอนสุดท้าย</h2>
+            <p class="text-slate-500 font-bold">ยืนยันข้อมูลและส่งแบบสอบถาม</p>
+          </div>
+          
+          <div class="space-y-8">
+            
+            <div id="passportUploadSection" class="hidden bg-blue-50 border-2 border-dashed border-blue-300 rounded-3xl p-6 md:p-10 text-center relative hover:bg-blue-100 transition duration-300">
+              <input type="file" id="passportFile" accept="image/jpeg, image/png" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" onchange="handleImage(this)">
+              <i class="fi fi-sr-cloud-upload-alt text-6xl text-blue-500 mb-4 inline-block"></i>
+              <h3 class="font-black text-blue-800 text-xl mb-2">อัพโหลด PASSPORT</h3>
+              <p class="text-blue-600/90 text-sm font-bold mb-4 leading-relaxed">
+                 ใบสะสมภารกิจกิจกรรมที่มีตราประทับฐานต่าง ๆ<br>
+                 (รับเฉพาะไฟล์ JPG PNG เท่านั้น ขนาดไม่เกิน 1 MB)<br>
+                 <span class="text-rose-500 inline-block mt-1">*จำเป็นต้องแนบเพื่อรับเกียรติบัตร</span>
+              </p>
+              
+              <div id="previewContainer" class="hidden mt-6 p-2 bg-white rounded-2xl shadow-sm border border-blue-100 mx-auto max-w-sm relative z-20">
+                <img id="previewImg" class="w-full rounded-xl object-contain max-h-64">
+                <button type="button" onclick="removeImage(event)" class="absolute -top-3 -right-3 w-8 h-8 bg-rose-500 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-rose-600 transition"><i class="fi fi-sr-cross-small"></i></button>
+              </div>
+            </div>
+
+            <div class="bg-white border-2 border-slate-100 p-6 md:p-8 rounded-3xl shadow-sm">
+              <label class="block font-black text-lg mb-3 text-slate-800 flex items-center gap-2"><i class="fi fi-sr-comment-heart text-rose-500"></i> ข้อเสนอแนะเพิ่มเติม</label>
+              <p class="text-slate-500 font-bold text-sm mb-4">บอกเราหน่อยกิจกรรมวันนี้เป็นยังไงบ้าง หรือให้กำลังใจทีมงาน 🧡</p>
+              <textarea id="feedback" rows="4" class="glass-input resize-none bg-slate-50" placeholder="พิมพ์ข้อความที่นี่..."></textarea>
+            </div>
+
+            <div class="flex justify-between items-center pt-6 border-t border-slate-100 mt-8">
+              <button type="button" onclick="prevStep(4)" class="px-6 py-3 text-slate-400 font-extrabold text-lg hover:text-slate-800 transition-colors">ย้อนกลับ</button>
+              <button type="button" onclick="submitSurvey()" id="btnSubmit" class="w-full md:w-auto bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-10 py-4 rounded-xl font-black text-xl flex items-center justify-center gap-3 shadow-lg hover:shadow-emerald-500/50 transition-all transform hover:-translate-y-1">
+                ส่งแบบสอบถาม <i class="fi fi-sr-paper-plane mt-1"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
+
+      <!-- ================= SUCCESS VIEW ================= -->
+      <div id="successView" class="hidden flex flex-col items-center py-10 text-center animate-[fadeIn_0.5s_ease-out]">
+        <div class="w-24 h-24 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-full flex justify-center items-center mb-6 border-4 border-white shadow-lg">
+            <i class="fi fi-sr-check-circle text-5xl text-emerald-500 mt-2"></i>
+        </div>
+        <h2 class="text-3xl md:text-4xl font-black text-slate-800 mb-3 tracking-tight">ขอบคุณที่ร่วมประเมินกิจกรรม</h2>
+        <p class="text-lg text-slate-600 mb-8 max-w-md font-medium" id="successDesc">ระบบได้รับข้อมูลของท่านเรียบร้อยแล้ว</p>
+        
+        <!-- ส่วน QR โชว์เฉพาะนักเรียน -->
+        <div id="successQrSection" class="hidden w-full max-w-sm">
+            <div class="bg-orange-50 border border-orange-200 text-orange-600 px-4 py-3 rounded-xl font-bold text-sm mb-6 flex flex-col items-center justify-center gap-2 shadow-sm">
+                <span>กรุณานำ QR Code ด้านล่างไปแสดงที่จุดรับเกียรติบัตร เพื่อให้เจ้าหน้าที่ทำการอนุมัติ</span>
+            </div>
+
+            <div class="bg-white p-6 rounded-3xl border-2 border-slate-200 shadow-xl mb-6 flex justify-center">
+                <div id="displayQrCode" class="w-full flex justify-center items-center aspect-square"></div>
+            </div>
+            <p class="text-sm text-rose-500 font-bold mb-8">* หลังจากอนุมัติแล้ว คุณสามารถโหลดเกียรติบัตรได้ที่เมนู E-Ticket</p>
+        </div>
+
+        <a href="home.html" class="bg-sky-500 hover:bg-sky-600 text-white px-10 py-4 rounded-2xl font-black text-lg transition shadow-md flex items-center gap-2">
+            กลับหน้าหลัก <i class="fi fi-sr-home mt-1"></i>
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+  <canvas id="canvas" style="display:none;"></canvas>
+
+  <script>
+    // ⚠️ นำลิงก์ Web App Google Apps Script ล่าสุดมาใส่ที่นี่ ⚠️
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwDhvM_hVuC-YRXCt58u6kDxIXtPLZrcvufI7oWqFSMgg7g_Gf9aEYB42NyYMSCO5IlYQ/exec';
+    
+    let currentStep = 1;
+    let base64Image = null;
+    let searchTimer = null;
+
+    // คำถามแบบเต็ม 100% ตามที่ผู้ใช้ระบุ
+    const channels = [
+      "กิจกรรม CRA Open House", 
+      "กิจกรรม DEK-D’s TCAS Fair ไบเทค บางนา", 
+      "กิจกรรม CRA Roadshow (ที่โรงเรียนของท่าน)",
+      "กิจกรรม CRA The Tutor 2026",
+      "กิจกรรม CRA Press Tour",
+      "สื่อสังคมออนไลน์ Education CRA และสื่อราชวิทยาลัยจุฬาภรณ์", 
+      "สื่อเพจต่าง ๆ ของหลักสูตร ภายในราชวิทยาลัยจุฬาภรณ์", 
+      "เว็บไซต์ของราชวิทยาลัยจุฬาภรณ์", 
+      "เว็บไซต์ข่าว/หนังสือพิมพ์ / วารสาร / โบว์ชัวร์", 
+      "โทรทัศน์และวิทยุ", 
+      "เพื่อน/คนรู้จัก/ครอบครัว/ครูที่โรงเรียน"
+    ];
+    
+    const svgStar = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>';
+
+    const ratings = [
+      { id: 'q1', title: 'หลังจากเข้าร่วมกิจกรรม CRA Open House 2027 : Health Science NEXT GEN ท่านรู้สึกอยากศึกษาต่อที่ราชวิทยาลัยจุฬาภรณ์มากขึ้นระดับใด' },
+      { id: 'q2', title: 'ท่านให้คะแนนความสะดวกในการลงทะเบียนเข้าร่วมระดับใด' },
+      { id: 'q3', title: 'ช่วงเวลาในการจัดกิจกรรม ท่านพึงพอใจในระดับใด' },
+      { id: 'q4', title: 'ท่านพึงพอใจสถานที่จัดงานระดับใด' },
+      { id: 'q5', title: 'หลังจากเข้าร่วมกิจกรรมทำให้ท่านสนใจหลักสูตรมากขึ้นระดับใด' },
+      { id: 'q6', title: 'หากราชวิทยาลัยจุฬาภรณ์จัดกิจกรรม CRA Open House อีกในปีถัดไป ท่านมีความสนใจในเข้าร่วมระดับใด' },
+      { id: 'q7', title: 'ให้คะแนนภาพรวมของกิจกรรม CRA Open House 2027 : Health Science NEXT GEN' }
+    ];
+    
+    const admissionRounds = ["รอบที่ 1: Portfolio", "รอบที่ 2: Quota", "รอบที่ 3: Admission", "รอบที่ 4: Direct Admission","ยังไม่แน่ใจ"];
+    
+    const courses = [
+      "แพทยศาสตร์", "วิทยาศาสตร์ข้อมูลสุขภาพ", "พยาบาลศาสตร์", "พยาบาลศาสตร์(หลักสูตรนานาชาติ)", 
+      "พยาบาลศาสตร์(รับสำเร็จปริญญาตรีสาขาอื่น)", "รังสีเทคนิค", "วิทยาศาสตร์การเคลื่อนไหวและสุขภาพ", 
+      "ฉุกเฉินการแพทย์", "นวัตกรรมวิทยาศาสตร์การแพทย์", "เทคโนโลยีอาหารทางการแพทย์และสุขภาพ", "วิศวกรรมชีวการแพทย์"
+    ];
+    
+    const activities = [
+      "ช่วงแนะนำและทำความรู้จัก ราชวิทยาลัยจุฬาภรณ์", 
+      "ช่วงการแสดงจากชมรมเชียร์ลีดเดอร์และคฑากร ราชวิทยาลัยจุฬาภรณ์", 
+      "ช่วงช่วงแบ่งปันประสบการณ์ในรั้วราชวิทยาลัยจุฬาภรณ์“พูดคุยกับศิษย์เก่าและศิษย์ปัจจุบัน”", 
+      "ช่วงภารกิจเยี่ยมชมห้องการเรียนการสอนคณะแพทยศาสตร์ศรีสวางวัฒน", 
+      "ช่วงภารกิจเยี่ยมชมห้องการเรียนการสอนคณะพยาบาลศาสตร์อัครราชกุมารี", 
+      "ช่วงภารกิจเยี่ยมชมห้องการเรียนการสอนคณะเทคโนโลยีวิทยาศาสตร์สุขภาพ", 
+      "ช่วงภารกิจเยี่ยมชมห้องการเรียนการสอนคณะวิทยาศาสตร์", 
+      "ช่วงภารกิจเยี่ยมชมห้องการเรียนการสอนคณะนวัตกรรมอาหารและโภชนาการ", 
+      "ช่วงภารกิจเยี่ยมชมห้องการเรียนการสอนคณะวิศวกรรมศาสตร์", 
+      "ช่วงพูดคุยกับแขกรับเชิญพิเศษ คุณอุล ภาคภูมิ จงมั่นวัฒนา", 
+      "ช่วงExclusive “Mini Concert\"จากรุ่นพี่นักศึกษา และศิลปินสุดพิเศษ"
+    ];
+    
+    const domains = ['@gmail.com', '@hotmail.com', '@yahoo.com', '@outlook.com'];
+
+    window.onload = () => {
+      // Render Channels
+      let htmlChannels = channels.map(c => `<label class="cb-wrapper"><input type="checkbox" name="chkChannel" value="${c}"><div class="cb-box"></div><span class="text-slate-700 font-bold ml-1 text-sm leading-snug">${c}</span></label>`).join('');
+      htmlChannels += `<label class="cb-wrapper"><input type="checkbox" name="chkChannel" value="อื่นๆ" onchange="document.getElementById('otherChannel').classList.toggle('hidden', !this.checked)"><div class="cb-box"></div><span class="text-slate-700 font-bold ml-1 text-sm leading-snug">อื่นๆ</span></label>`;
+      document.getElementById('channelsWrap').innerHTML = htmlChannels;
+      
+      // Render Activities
+      document.getElementById('activitiesWrap').innerHTML = activities.map(a => `<label class="cb-wrapper"><input type="checkbox" name="chkActivity" value="${a}"><div class="cb-box"></div><span class="text-slate-700 font-bold ml-1 text-[13px] leading-relaxed md:text-sm md:leading-snug">${a}</span></label>`).join('');
+      
+      // Render Ratings
+      document.getElementById('ratingsWrap').innerHTML = ratings.map(r => `
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 md:gap-4 p-4 rounded-2xl hover:bg-white transition border border-transparent hover:border-orange-100">
+          <label class="font-bold text-slate-700 flex-1 leading-snug text-sm md:text-base">${r.title} <span class="text-rose-500">*</span></label>
+          <div class="radio-stars shrink-0">
+            ${[5, 4, 3, 2, 1].map(num => `
+                <input type="radio" id="${r.id}_${num}" name="${r.id}" value="${num}">
+                <label for="${r.id}_${num}" title="${num} คะแนน">
+                   ${svgStar}
+                </label>
+            `).join('')}
+          </div>
+        </div>
+      `).join('<hr class="border-slate-200 border-dashed">');
+
+      renderCustomDropdown('admissionRound', admissionRounds, '-- เลือกรอบที่สนใจ --', 'fi-sr-calendar');
+      
+      // หลักสูตรที่ 1: ดักจับ onChange เพื่อเอาวิชาที่เลือกออกจากการแสดงในช่องที่ 2
+      renderCustomDropdown('course1', courses, '-- เลือกหลักสูตรที่สนใจอันดับ 1 --', 'fi-sr-star', function(val) {
+          let filteredCourses = courses.filter(c => c !== val);
+          renderCustomDropdown('course2', filteredCourses, '-- เลือกหลักสูตร (ไม่บังคับ) --', 'fi-sr-star');
+          if (document.getElementById('course2').value === val) {
+              document.getElementById('course2').value = '';
+          }
+      });
+      
+      renderCustomDropdown('course2', courses, '-- เลือกหลักสูตร (ไม่บังคับ) --', 'fi-sr-star');
+    };
+
+    // ==========================================
+    // 🌟 CUSTOM DROPDOWN SYSTEM
+    // ==========================================
+    function renderCustomDropdown(inputId, optionsData, placeholder, defaultIcon, onChangeCallback) {
+        const container = document.getElementById(`dd-${inputId}`);
+        if(!container) return;
+        const hiddenInput = document.getElementById(inputId);
+
+        let html = `
+            <div class="c-select-wrapper" id="wrap-${inputId}">
+                <div class="c-select-trigger shadow-sm">
+                    <span class="flex items-center gap-3 truncate text-sm md:text-base" id="text-${inputId}">
+                        <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 shrink-0"><i class="fi ${defaultIcon} mt-1 text-base"></i></div>
+                        ${placeholder}
+                    </span>
+                    <i class="fi fi-sr-angle-small-down text-slate-400 shrink-0 ml-2"></i>
+                </div>
+                <div class="c-options">
+                    <div class="c-option text-slate-400" data-value=""><span>${placeholder}</span></div>
+        `;
+
+        optionsData.forEach(opt => {
+            html += `
+                <div class="c-option text-sm md:text-base" data-value="${opt}">
+                    <div class="w-10 h-10 bg-orange-50 rounded-full flex items-center justify-center text-orange-500 shrink-0"><i class="fi ${defaultIcon} mt-1 text-base"></i></div>
+                    <span class="whitespace-normal">${opt}</span>
+                </div>`;
+        });
+        html += `</div></div>`;
+        container.innerHTML = html;
+
+        const wrapper = container.querySelector('.c-select-wrapper');
+        const trigger = container.querySelector('.c-select-trigger');
+        const textDisplay = container.querySelector(`#text-${inputId}`);
+
+        trigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            document.querySelectorAll('.c-select-wrapper').forEach(w => { if(w !== wrapper) w.classList.remove('open'); });
+            wrapper.classList.toggle('open');
+        });
+
+        wrapper.querySelectorAll('.c-option').forEach(opt => {
+            opt.addEventListener('click', (e) => {
+                e.stopPropagation();
+                let val = opt.getAttribute('data-value');
+                hiddenInput.value = val;
+                
+                if(val) textDisplay.innerHTML = `<div class="w-10 h-10 bg-orange-50 rounded-full flex items-center justify-center text-orange-500 shrink-0"><i class="fi ${defaultIcon} mt-1 text-base"></i></div> <span class="whitespace-normal">${val}</span>`;
+                else textDisplay.innerHTML = `<div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 shrink-0"><i class="fi ${defaultIcon} mt-1 text-base"></i></div> ${placeholder}`;
+                
+                wrapper.classList.remove('open');
+                if (onChangeCallback) onChangeCallback(val);
+            });
+        });
+    }
+
+    // ==========================================
+    // 🌟 ระบบควบคุม Stepper & STRICT Validation
+    // ==========================================
+    function nextStep(step) {
+      if (!validateStep(step)) return;
+      
+      document.getElementById(`step${step}`).classList.remove('active');
+      currentStep = step + 1;
+      document.getElementById(`step${currentStep}`).classList.add('active');
+      updateStepperUI();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function prevStep(step) {
+      document.getElementById(`step${step}`).classList.remove('active');
+      currentStep = step - 1;
+      document.getElementById(`step${currentStep}`).classList.add('active');
+      updateStepperUI();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function updateStepperUI() {
+      const progress = ((currentStep - 1) / 3) * 100;
+      document.getElementById('progressBar').style.width = `${progress}%`;
+
+      for (let i = 1; i <= 4; i++) {
+        const dot = document.getElementById(`dot${i}`);
+        const text = document.getElementById(`text-dot${i}`);
+        if (i < currentStep) {
+          dot.className = "w-10 h-10 md:w-12 md:h-12 rounded-full bg-emerald-500 text-white flex justify-center items-center font-black text-lg md:text-xl transition-all shadow-md";
+          dot.innerHTML = '<i class="fi fi-sr-check mt-1"></i>';
+          if(text) text.className = "text-[10px] md:text-xs font-bold text-emerald-500 text-center";
+        } else if (i === currentStep) {
+          dot.className = "w-10 h-10 md:w-12 md:h-12 rounded-full bg-orange-500 text-white flex justify-center items-center font-black text-lg md:text-xl shadow-lg ring-4 ring-orange-50 transition-all scale-110";
+          dot.innerHTML = getIconForStep(i);
+          if(text) text.className = "text-[10px] md:text-xs font-bold text-orange-500 text-center";
+        } else {
+          dot.className = "w-10 h-10 md:w-12 md:h-12 rounded-full bg-white border-2 border-slate-200 text-slate-400 flex justify-center items-center font-black text-lg md:text-xl transition-all";
+          dot.innerHTML = getIconForStep(i);
+          if(text) text.className = "text-[10px] md:text-xs font-bold text-slate-400 text-center";
+        }
+      }
+    }
+
+    function getIconForStep(step) {
+      if(step===1) return '<i class="fi fi-sr-user mt-1"></i>';
+      if(step===2) return '<i class="fi fi-sr-star mt-1"></i>';
+      if(step===3) return '<i class="fi fi-sr-book-alt mt-1"></i>';
+      if(step===4) return '<i class="fi fi-sr-check-circle mt-1"></i>';
+    }
+
+    function validateStep(step) {
+      const typeEl = document.querySelector('input[name="userType"]:checked');
+      if (!typeEl) return showError('กรุณาเลือกสถานะการเข้าร่วมงาน');
+      const isStudent = typeEl.value === 'นักเรียนและนักศึกษาที่มี PASSPORT';
+
+      if (step === 1) {
+        if (isStudent) {
+          if(!document.getElementById('finalIdStr').value.trim()) {
+             return showError('กรุณาค้นหา ID หรือ ชื่อ เพื่อดึงข้อมูลก่อนทำการไปหน้าถัดไป');
+          }
+          if(!document.getElementById('fullName').value.trim()) return showError('กรุณากรอกและตรวจสอบ ชื่อ - นามสกุล');
+          if(!document.getElementById('email').value.trim()) return showError('กรุณากรอกและตรวจสอบ อีเมล');
+          if(!document.getElementById('admissionRound').value) return showError('กรุณาเลือกรอบการรับสมัครที่สนใจ');
+        }
+        return true;
+      }
+
+      if (step === 2) {
+        if (!document.querySelector('input[name="knowBefore"]:checked')) return showError('กรุณาตอบคำถามว่ารู้จักราชวิทยาลัยจุฬาภรณ์มาก่อนหรือไม่');
+        
+        let chkC = Array.from(document.querySelectorAll('input[name="chkChannel"]:checked'));
+        if(chkC.length === 0) return showError('กรุณาเลือกช่องทางที่รู้จัก/เคยเห็น อย่างน้อย 1 ข้อ');
+        
+        if(document.querySelector('input[name="chkChannel"][value="อื่นๆ"]')?.checked && !document.getElementById('otherChannel').value.trim()) {
+           return showError('กรุณาระบุช่องทางอื่นๆ ที่ท่านทราบข่าวในช่องพิมพ์');
+        }
+
+        for (let r of ratings) {
+          if (!document.querySelector(`input[name="${r.id}"]:checked`)) {
+              return showError(`กรุณาให้คะแนนความพึงพอใจให้ครบทุกข้อ\n(ขาด: ${r.title})`);
+          }
+        }
+        return true;
+      }
+
+      if (step === 3) {
+        if (!document.getElementById('course1').value) return showError('กรุณาเลือกหลักสูตรที่ท่านสนใจมากที่สุด อันดับที่ 1');
+        let chkA = Array.from(document.querySelectorAll('input[name="chkActivity"]:checked'));
+        if(chkA.length === 0) return showError('กรุณาเลือกกิจกรรมที่ท่านชอบอย่างน้อย 1 ข้อ');
+        return true;
+      }
+
+      return true;
+    }
+
+    function showError(msg) {
+      Swal.fire({ icon: 'warning', title: 'ข้อมูลไม่ครบถ้วน', text: msg, confirmButtonText: 'ตกลง', confirmButtonColor: '#f97316', customClass: { popup: 'modern-popup' }});
+      return false;
+    }
+
+    // ==========================================
+    // 🌟 ระบบจัดการคำถามเงื่อนไข
+    // ==========================================
+    function handleKnowBeforeChange() {
+      const val = document.querySelector('input[name="knowBefore"]:checked')?.value;
+      const label = document.getElementById('channelQuestionLabel');
+      
+      if (val === 'ไม่รู้จัก') {
+        label.innerHTML = 'ท่านเคยเห็นราชวิทยาลัยจุฬาภรณ์จากช่องทางใดบ้าง <span class="text-sm text-orange-500 font-bold">(ตอบได้มากกว่า 1 ข้อ)</span> <span class="text-rose-500">*</span>';
+        const ohCheckbox = document.querySelector('input[name="chkChannel"][value="กิจกรรม CRA Open House"]');
+        if (ohCheckbox) ohCheckbox.checked = true;
+
+      } else if (val === 'รู้จัก') {
+        label.innerHTML = 'ท่านรู้จักราชวิทยาลัยจุฬาภรณ์จากช่องทางใด <span class="text-sm text-orange-500 font-bold">(ตอบได้มากกว่า 1 ข้อ)</span> <span class="text-rose-500">*</span>';
+      }
+    }
+
+    function toggleStudentSection(isStudent) {
+      document.getElementById('studentSection').style.display = isStudent ? 'block' : 'none';
+      document.getElementById('passportUploadSection').style.display = isStudent ? 'block' : 'none';
+    }
+
+    function toggleSearchMode(mode) {
+      const idMode = document.getElementById('searchIdMode');
+      const nameMode = document.getElementById('searchNameMode');
+      const list = document.getElementById('autocomplete-list');
+      
+      if (mode === 'name') {
+        idMode.classList.add('hidden');
+        nameMode.classList.remove('hidden');
+        document.getElementById('searchNameInput').focus();
+      } else {
+        nameMode.classList.add('hidden');
+        idMode.classList.remove('hidden');
+        document.getElementById('searchIdInput').focus();
+      }
+      list.style.display = 'none';
+    }
+
+    function triggerIdSearch() {
+      const idVal = document.getElementById('searchIdInput').value.trim();
+      if(idVal.length === 0) return showError('กรุณากรอกรหัส ID 4 หลัก');
+      searchById(idVal);
+    }
+
+    function handleSmartSearch(val) {
+      clearTimeout(searchTimer);
+      const list = document.getElementById('autocomplete-list');
+      if(val.trim().length < 2) { list.style.display = 'none'; return; }
+
+      searchTimer = setTimeout(() => {
+        fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'searchName', data: { name: val } }) })
+        .then(res => res.json())
+        .then(data => {
+          if(data.status === 'success' && data.results.length > 0) {
+            list.innerHTML = data.results.map(r => `<div onclick="confirmNameSelection('${r.id}', '${r.name}', '${r.email}', '${r.phone}', '${r.type}')">
+              <span class="text-slate-800 font-bold">${r.name}</span> 
+              <span class="text-orange-500 text-xs bg-orange-50 px-2 py-1 rounded border border-orange-200 ml-2 font-black">${r.id}</span>
+            </div>`).join('');
+            list.style.display = 'block';
+          } else {
+            list.innerHTML = '<div class="text-slate-400 italic font-medium">ไม่พบรายชื่อในระบบ</div>';
+            list.style.display = 'block';
+          }
+        });
+      }, 500);
+    }
+
+    function searchById(idVal) {
+      Swal.fire({ title: 'กำลังค้นหาข้อมูล...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+      
+      fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'getUserById', data: { id: idVal } }) })
+      .then(res => res.json())
+      .then(data => {
+        Swal.close();
+        if(data.status === 'success') {
+          showConfirmPopup(data);
+        } else {
+          Swal.fire({ icon: 'error', title: 'ไม่พบ ID นี้', text: 'โปรดตรวจสอบอีกครั้ง หรือเปลี่ยนไปค้นหาด้วยชื่อแทน', confirmButtonColor: '#ef4444', customClass: { popup: 'modern-popup' } });
+        }
+      });
+    }
+
+    function confirmNameSelection(id, name, email, phone, type) {
+       document.getElementById('autocomplete-list').style.display = 'none';
+       showConfirmPopup({id: id, name: name, email: email, phone: phone, type: type});
+    }
+
+    function showConfirmPopup(data) {
+       Swal.fire({
+            title: 'ข้อมูลนี้ใช่คุณหรือไม่?', 
+            html: `<div class="text-left bg-slate-50 p-5 rounded-2xl border border-slate-200 mt-2 shadow-inner">
+                     <div class="mb-2"><span class="text-slate-500 text-sm font-bold">รหัส ID:</span> <span class="font-black text-orange-500 text-xl ml-2">${data.id}</span></div>
+                     <div class="mb-2"><span class="text-slate-500 text-sm font-bold">ประเภท:</span> <span class="font-bold text-blue-600 text-md ml-2">${data.type || 'ไม่ระบุ'}</span></div>
+                     <div><span class="text-slate-500 text-sm font-bold">ชื่อ-สกุล:</span> <span class="font-bold text-slate-800 text-lg ml-2">${data.name}</span></div>
+                   </div>`, 
+            icon: 'question',
+            showCancelButton: true, 
+            confirmButtonText: '<i class="fi fi-sr-check-circle mt-1"></i> ใช่, นี่คือข้อมูลของฉัน', 
+            cancelButtonText: 'ไม่ใช่, ค้นหาใหม่',
+            confirmButtonColor: '#0ea5e9',
+            cancelButtonColor: '#94a3b8',
+            customClass: { popup: 'modern-popup' }
+          }).then((r) => {
+             if(r.isConfirmed) fillData(data.id, data.name, data.email, data.phone, data.type);
+             else {
+                document.getElementById('searchIdInput').value = '';
+                document.getElementById('searchNameInput').value = '';
+             }
+          });
+    }
+
+    function fillData(id, name, email, phone, type) {
+      if (type && type !== 'นักเรียน' && type !== 'นักศึกษา') {
+          Swal.fire({
+              icon: 'info', title: 'ตรวจพบประเภทไม่ตรงกัน',
+              text: 'ข้อมูลในระบบระบุว่าคุณคือ "ผู้ปกครอง/บุคคลทั่วไป" ระบบจะสลับไปที่ฟอร์มสำหรับบุคคลทั่วไปอัตโนมัติครับ',
+              confirmButtonColor: '#0ea5e9', customClass: { popup: 'modern-popup' }
+          });
+          document.querySelector('input[name="userType"][value="ผู้ปกครองและบุคคลทั่วไป"]').checked = true;
+          toggleStudentSection(false);
+          return;
+      }
+
+      document.getElementById('finalIdStr').value = id.replace(/^(OH|WOH|PT|TS)-/,'');
+      document.getElementById('fullName').value = name;
+      document.getElementById('email').value = email;
+      document.getElementById('phoneHidden').value = phone;
+      
+      const infoBox = document.getElementById('personalInfoBox');
+      infoBox.classList.remove('opacity-50', 'pointer-events-none', 'bg-slate-50');
+      infoBox.classList.add('bg-white', 'shadow-xl', 'border-orange-200');
+      
+      Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'ดึงข้อมูลสำเร็จ', showConfirmButton: false, timer: 2000 });
+    }
+
+    function showEmailDomains(val) {
+      const box = document.getElementById('emailDomains');
+      if(val.includes('@') || val.length < 1) { box.style.display = 'none'; return; }
+      box.innerHTML = domains.map(d => `<div onclick="document.getElementById('email').value='${val}${d}'; this.parentElement.style.display='none'">${val}<span class="text-orange-500 font-bold">${d}</span></div>`).join('');
+      box.style.display = 'block';
+    }
+
+    document.addEventListener('click', (e) => {
+       if(e.target.id !== 'email') document.getElementById('emailDomains').style.display = 'none';
+       if(e.target.id !== 'searchNameInput') document.getElementById('autocomplete-list').style.display = 'none';
+       document.querySelectorAll('.c-select-wrapper').forEach(w => w.classList.remove('open'));
+    });
+
+    // ==========================================
+    // 🌟 ระบบจัดการรูปภาพ (บีบอัด)
+    // ==========================================
+    function handleImage(input) {
+      if (input.files && input.files[0]) {
+        const file = input.files[0];
+        if (file.size > 8 * 1024 * 1024) { Swal.fire('ไฟล์ใหญ่เกินไป', 'กรุณาเลือกรูปขนาดไม่เกิน 8MB', 'warning'); input.value = ''; return; }
+        
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const img = new Image();
+          img.onload = function() {
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            const MAX_WIDTH = 1200; 
+            let width = img.width, height = img.height;
+
+            if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+            canvas.width = width; canvas.height = height;
+            ctx.drawImage(img, 0, 0, width, height);
+
+            base64Image = canvas.toDataURL('image/jpeg', 0.6); 
+            
+            document.getElementById('previewImg').src = base64Image; 
+            document.getElementById('previewContainer').classList.remove('hidden');
+            document.querySelector('#passportUploadSection > i').classList.add('hidden');
+            document.querySelector('#passportUploadSection > h3').classList.add('hidden');
+            document.querySelector('#passportUploadSection > p').classList.add('hidden');
+          }
+          img.src = e.target.result;
+        }
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function removeImage(e) {
+      e.stopPropagation();
+      e.preventDefault();
+      base64Image = null;
+      document.getElementById('passportFile').value = '';
+      document.getElementById('previewContainer').classList.add('hidden');
+      document.querySelector('#passportUploadSection > i').classList.remove('hidden');
+      document.querySelector('#passportUploadSection > h3').classList.remove('hidden');
+      document.querySelector('#passportUploadSection > p').classList.remove('hidden');
+    }
+
+    // ==========================================
+    // 🌟 ส่งข้อมูลแบบสอบถาม
+    // ==========================================
+    function submitSurvey() {
+      const isStudent = document.querySelector('input[name="userType"]:checked').value === 'นักเรียนและนักศึกษาที่มี PASSPORT';
+      
+      if (isStudent && !base64Image) {
+        return showError('กรุณาอัพโหลด PASSPORT เพื่อเป็นหลักฐานในการรับเกียรติบัตร');
+      }
+
+      let chkC = Array.from(document.querySelectorAll('input[name="chkChannel"]:checked')).map(el => el.value);
+      if(document.querySelector('input[name="chkChannel"][value="อื่นๆ"]')?.checked) chkC.push("อื่นๆ: " + document.getElementById('otherChannel').value);
+
+      let chkA = Array.from(document.querySelectorAll('input[name="chkActivity"]:checked')).map(el => el.value);
+
+      const payload = {
+        action: 'submitForm',
+        data: {
+          type: document.querySelector('input[name="userType"]:checked').value,
+          id: isStudent ? ("OH-" + ("0000" + document.getElementById('finalIdStr').value.trim()).slice(-4)) : "",
+          name: document.getElementById('fullName')?.value || "",
+          email: document.getElementById('email')?.value || "",
+          phone: document.getElementById('phoneHidden')?.value || "",
+          admissionRound: document.getElementById('admissionRound')?.value || "",
+          knowBefore: document.querySelector('input[name="knowBefore"]:checked').value,
+          channels: chkC.join(', '),
+          q1: document.querySelector('input[name="q1"]:checked').value,
+          q2: document.querySelector('input[name="q2"]:checked').value,
+          q3: document.querySelector('input[name="q3"]:checked').value,
+          q4: document.querySelector('input[name="q4"]:checked').value,
+          q5: document.querySelector('input[name="q5"]:checked').value,
+          q6: document.querySelector('input[name="q6"]:checked').value,
+          q7: document.querySelector('input[name="q7"]:checked').value,
+          course1: document.getElementById('course1').value,
+          course2: document.getElementById('course2').value,
+          activities: chkA.join(', '),
+          feedback: document.getElementById('feedback').value,
+          passportBase64: isStudent ? base64Image : null
+        }
+      };
+
+      const btn = document.getElementById('btnSubmit');
+      btn.innerHTML = '<i class="fi fi-sr-spinner animate-spin text-xl"></i> กำลังส่งข้อมูล...';
+      btn.disabled = true;
+
+      fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
+      .then(res => res.json())
+      .then(data => {
+        btn.innerHTML = 'ส่งแบบสอบถาม <i class="fi fi-sr-paper-plane mt-1"></i>'; btn.disabled = false;
+        
+        if (data.status === 'success') {
+            document.getElementById('surveyForm').classList.add('hidden');
+            document.getElementById('stepperContainer').classList.add('hidden');
+            document.getElementById('successView').classList.remove('hidden');
+            window.scrollTo(0,0);
+
+            if (isStudent) {
+                document.getElementById('successDesc').innerText = 'ระบบได้รับข้อมูลเพื่อขอรับเกียรติบัตรแล้ว';
+                document.getElementById('successQrSection').classList.remove('hidden');
+                
+                // ใช้ QRCode.js สร้าง QR Code บนฝั่งผู้ใช้ทันทีเพื่อกันปัญหาภาพเสีย
+                const fullIdStr = payload.data.id;
+                const qrContainer = document.getElementById('displayQrCode');
+                qrContainer.innerHTML = "";
+                new QRCode(qrContainer, {
+                    text: fullIdStr,
+                    width: 250,
+                    height: 250,
+                    colorDark : "#0f172a", 
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.H
+                });
+            } else {
+                document.getElementById('successDesc').innerText = 'หวังว่าจะได้พบกันใหม่ ขอให้มีความสุขสุขภาพแข็งแรงตลอดไปครับ';
+            }
+        } else if(data.status === 'already') {
+          Swal.fire({ icon: 'warning', title: 'ท่านทำแบบสอบถามไปแล้ว', text: 'รหัส ID นี้ได้ทำแบบสอบถามไปแล้วในระบบครับ', confirmButtonColor: '#f97316', customClass: { popup: 'modern-popup' }});
+        } else {
+          Swal.fire('ข้อผิดพลาด', 'ไม่สามารถส่งข้อมูลได้ กรุณาลองใหม่', 'error');
+        }
+      }).catch(err => {
+        btn.innerHTML = 'ส่งแบบสอบถาม <i class="fi fi-sr-paper-plane mt-1"></i>'; btn.disabled = false;
+        Swal.fire('ข้อผิดพลาด', 'การเชื่อมต่อขัดข้อง', 'error');
+      });
+    }
+  </script>
+</body>
+</html>
