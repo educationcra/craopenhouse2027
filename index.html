@@ -68,22 +68,8 @@
                <span class="text-sm font-bold text-slate-400">คน</span>
             </div>
          </div>
-
-         <!-- Countdown Timer -->
-         <div id="countdown-container" class="w-full max-w-xl mt-2 bg-slate-800 rounded-2xl p-6 shadow-lg shadow-slate-800/20 flex flex-col items-center border border-slate-700">
-             <h3 class="text-xs md:text-sm font-bold text-orange-400 uppercase tracking-widest mb-3">ระบบเปิดลงทะเบียนในอีก</h3>
-             <div class="flex items-center gap-3 md:gap-6 text-white font-black text-2xl md:text-4xl">
-                 <div class="flex flex-col items-center w-12 md:w-16"><span id="cd-days">00</span><span class="text-[10px] font-normal text-slate-400 mt-1 uppercase">วัน</span></div>
-                 <span class="text-slate-500 animate-pulse pb-4">:</span>
-                 <div class="flex flex-col items-center w-12 md:w-16"><span id="cd-hours">00</span><span class="text-[10px] font-normal text-slate-400 mt-1 uppercase">ชั่วโมง</span></div>
-                 <span class="text-slate-500 animate-pulse pb-4">:</span>
-                 <div class="flex flex-col items-center w-12 md:w-16"><span id="cd-minutes">00</span><span class="text-[10px] font-normal text-slate-400 mt-1 uppercase">นาที</span></div>
-                 <span class="text-slate-500 animate-pulse pb-4">:</span>
-                 <div class="flex flex-col items-center w-12 md:w-16"><span id="cd-seconds">00</span><span class="text-[10px] font-normal text-slate-400 mt-1 uppercase">วินาที</span></div>
-             </div>
-         </div>
      
-         <!-- ปุ่ม Action (ซ่อนไว้จนกว่าจะถึงเวลา) -->
+         <!-- ปุ่ม Action (แสดงตอนระบบเปิด, ซ่อนเมื่อถึงเวลาปิด) -->
          <div id="action-buttons" class="hidden grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-xl mt-2 animate-[fadeIn_0.5s_ease-in]">
              <a href="register.html" class="btn-orange rounded-2xl p-5 md:p-6 shadow-md shadow-orange-500/20 w-full text-left border-0 cursor-pointer group flex items-center gap-4">
                  <i class="fi fi-sr-rocket-lunch text-3xl md:text-4xl group-hover:scale-110 transition-transform"></i>
@@ -102,29 +88,71 @@
              </a>
          </div>
 
-         <p class="text-slate-400 font-medium text-[11px] mt-4">© 2026 CRA Education. All rights reserved.</p>
+         <!-- Countdown Timer -->
+         <div id="countdown-container" class="w-full max-w-xl mt-4 bg-slate-800 rounded-2xl p-6 shadow-lg shadow-slate-800/20 flex flex-col items-center border border-slate-700">
+             <!-- เปลี่ยนข้อความเป็น นับถอยหลังสู่การปิดระบบ -->
+             <h3 class="text-xs md:text-sm font-bold text-orange-400 uppercase tracking-widest mb-3">ระบบจะปิดรับลงทะเบียนในอีก</h3>
+             <div class="flex items-center gap-3 md:gap-6 text-white font-black text-2xl md:text-4xl">
+                 <div class="flex flex-col items-center w-12 md:w-16"><span id="cd-days">00</span><span class="text-[10px] font-normal text-slate-400 mt-1 uppercase">วัน</span></div>
+                 <span class="text-slate-500 animate-pulse pb-4">:</span>
+                 <div class="flex flex-col items-center w-12 md:w-16"><span id="cd-hours">00</span><span class="text-[10px] font-normal text-slate-400 mt-1 uppercase">ชั่วโมง</span></div>
+                 <span class="text-slate-500 animate-pulse pb-4">:</span>
+                 <div class="flex flex-col items-center w-12 md:w-16"><span id="cd-minutes">00</span><span class="text-[10px] font-normal text-slate-400 mt-1 uppercase">นาที</span></div>
+                 <span class="text-slate-500 animate-pulse pb-4">:</span>
+                 <div class="flex flex-col items-center w-12 md:w-16"><span id="cd-seconds">00</span><span class="text-[10px] font-normal text-slate-400 mt-1 uppercase">วินาที</span></div>
+             </div>
+         </div>
+
+         <p class="text-slate-400 font-medium text-[11px] mt-6">© 2026 CRA Education. All rights reserved.</p>
 
       </div>
   </div>
 
   <script>
-    // ตั้งเวลาเปิดระบบ 14 กันยายน 2026 เวลา 10:00 น. (Timezone: GMT+0700)
-    const targetDate = new Date("2026-09-14T10:00:00+07:00").getTime();
+    // 🌟 ตั้งเวลาปิดรับลงทะเบียน (10 ต.ค. 2569 เวลา 12:00 น.) 🌟
+    const closeDate = new Date("2026-10-10T12:00:00+07:00").getTime();
     
+    // 🌟 ตั้งเวลา Redirect ไปหน้าหลัก (10 ต.ค. 2569 เวลา 12:30 น.) 🌟
+    const redirectDate = new Date("2026-10-10T12:30:00+07:00").getTime();
+    
+    // เช็คทันทีตอนโหลดหน้าเว็บ เผื่อเลยเวลา Redirect ไปแล้วจะได้เด้งเลย
+    if (new Date().getTime() >= redirectDate) {
+        window.location.href = 'home.html';
+    }
+
     const countdownTimer = setInterval(() => {
         const now = new Date().getTime();
-        const distance = targetDate - now;
 
-        // ถ้านับถอยหลังจบแล้ว (ถึงเวลาเปิดระบบ)
-        if (distance <= 0) {
+        // 🛑 สเตจ 3: เกินเวลา 12:30 น. -> เด้งไปหน้า home.html ทันที
+        if (now >= redirectDate) {
             clearInterval(countdownTimer);
-            document.getElementById("countdown-container").classList.add("hidden");
-            document.getElementById("action-buttons").classList.remove("hidden");
-            // ใช้ flex แบบ grid เดิม
-            document.getElementById("action-buttons").style.display = "grid"; 
+            window.location.href = 'home.html';
             return;
         }
 
+        // 🛑 สเตจ 2: อยู่ระหว่าง 12:00 - 12:29 น. -> ซ่อนปุ่ม และแสดงข้อความว่าปิดแล้ว
+        if (now >= closeDate) {
+            const actionBtns = document.getElementById("action-buttons");
+            if (actionBtns) actionBtns.style.display = "none";
+            
+            const cdContainer = document.getElementById("countdown-container");
+            if (cdContainer) {
+                cdContainer.innerHTML = `
+                    <h3 class="text-sm md:text-base font-bold text-rose-500 uppercase tracking-widest mb-2">ปิดรับลงทะเบียนแล้ว</h3>
+                    <p class="text-slate-400 text-xs font-medium">ระบบจะพาท่านไปยังหน้าหลักในไม่ช้า...</p>
+                `;
+            }
+            return;
+        }
+
+        // ✅ สเตจ 1: ยังไม่ถึงเวลาปิด -> แสดงปุ่ม และนับถอยหลังสู่เวลาปิด
+        const actionBtns = document.getElementById("action-buttons");
+        if (actionBtns) {
+            actionBtns.classList.remove("hidden");
+            actionBtns.style.display = "grid"; 
+        }
+
+        const distance = closeDate - now;
         const days = Math.floor(distance / (1000 * 60 * 60 * 24));
         const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
