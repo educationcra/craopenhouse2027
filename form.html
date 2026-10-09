@@ -226,6 +226,7 @@
 
                 <input type="hidden" id="finalIdStr">
                 <input type="hidden" id="phoneHidden">
+                <input type="hidden" id="userTypeHidden"> <!-- เพิ่ม hidden input สำหรับเก็บประเภท -->
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5 relative z-40">
                   <div>
@@ -316,7 +317,7 @@
                 <div id="dd-course1"></div>
               </div>
               <div class="pt-2 relative z-20">
-                <label class="block font-black text-lg mb-3 text-slate-800">หลักสูตรที่ท่านสนใจมากที่สุด อันดับที่ 2 <span class="text-slate-400 text-sm">(ไม่บังคับ)</span></label>
+                <label class="block font-black text-lg mb-3 text-slate-800">หลักสูตรที่ท่านสนใจมากที่สุด อันดับที่ 2 <span class="text-rose-500">*</span></label> <!-- เพิ่ม * บังคับตอบ -->
                 <input type="hidden" id="course2" value="">
                 <div id="dd-course2"></div>
               </div>
@@ -365,6 +366,18 @@
               <p class="text-slate-500 font-bold text-sm mb-4">บอกเราหน่อยกิจกรรมวันนี้เป็นยังไงบ้าง หรือให้กำลังใจทีมงาน 🧡</p>
               <textarea id="feedback" rows="4" class="glass-input resize-none bg-slate-50" placeholder="พิมพ์ข้อความที่นี่..."></textarea>
             </div>
+            
+            <!-- เพิ่มส่วน PDPA Consent -->
+            <div class="bg-slate-50 border border-slate-200 p-4 md:p-6 rounded-2xl flex items-start gap-3">
+               <label class="cb-wrapper m-0 !border-0 !p-0 !bg-transparent !mb-0 shrink-0 mt-0.5">
+                   <input type="checkbox" id="pdpaConsent">
+                   <div class="cb-box !border-slate-300"></div>
+               </label>
+               <div>
+                   <label for="pdpaConsent" class="font-bold text-slate-700 cursor-pointer block leading-snug">ข้าพเจ้ายินยอมให้ราชวิทยาลัยจุฬาภรณ์ เก็บรวบรวมข้อมูลนี้เพื่อการนำไปประเมินผลของกิจกรรม<span class="text-rose-500">*</span></label>
+                   <p class="text-xs text-slate-500 mt-1">เพื่อวัตถุประสงค์ในการประเมินผลการจัดงาน การออกเกียรติบัตร และการติดต่อสื่อสารแจ้งข่าวสารต่างๆ ของราชวิทยาลัยจุฬาภรณ์ ตามนโยบายคุ้มครองข้อมูลส่วนบุคคล (PDPA)</p>
+               </div>
+            </div>
 
             <div class="flex justify-between items-center pt-6 border-t border-slate-100 mt-8">
               <button type="button" onclick="prevStep(4)" class="px-6 py-3 text-slate-400 font-extrabold text-lg hover:text-slate-800 transition-colors">ย้อนกลับ</button>
@@ -377,26 +390,73 @@
       </form>
 
       <!-- ================= SUCCESS VIEW ================= -->
-      <div id="successView" class="hidden flex flex-col items-center py-10 text-center animate-[fadeIn_0.5s_ease-out]">
-        <div class="w-24 h-24 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-full flex justify-center items-center mb-6 border-4 border-white shadow-lg">
-            <i class="fi fi-sr-check-circle text-5xl text-emerald-500 mt-2"></i>
+      <div id="successView" class="hidden flex flex-col items-center py-6 text-center animate-[fadeIn_0.5s_ease-out] w-full">
+        <div class="w-20 h-20 md:w-24 md:h-24 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-full flex justify-center items-center mb-4 md:mb-6 border-4 border-white shadow-lg mx-auto">
+            <i class="fi fi-sr-check-circle text-4xl md:text-5xl text-emerald-500 mt-2"></i>
         </div>
-        <h2 class="text-3xl md:text-4xl font-black text-slate-800 mb-3 tracking-tight">ขอบคุณที่ร่วมประเมินกิจกรรม</h2>
-        <p class="text-lg text-slate-600 mb-8 max-w-md font-medium" id="successDesc">ระบบได้รับข้อมูลของท่านเรียบร้อยแล้ว</p>
+        <h2 class="text-2xl md:text-3xl font-black text-slate-800 mb-2 md:mb-3 tracking-tight">ขอบคุณที่ทำแบบสอบถามกิจกรรม</h2>
+        <p class="text-base md:text-lg text-slate-600 mb-8 font-medium px-4" id="successDesc">หวังว่ากิจกรรมนี้จะเป็นหนึ่งในความทรงจำที่ดีของคุณ<br>ขอให้มีความสุข แล้วพบกันใหม่</p>
         
-        <!-- ส่วน QR โชว์เฉพาะนักเรียน -->
-        <div id="successQrSection" class="hidden w-full max-w-sm">
-            <div class="bg-orange-50 border border-orange-200 text-orange-600 px-4 py-3 rounded-xl font-bold text-sm mb-6 flex flex-col items-center justify-center gap-2 shadow-sm">
-                <span>กรุณานำ QR Code ด้านล่างไปแสดงที่จุดรับเกียรติบัตร เพื่อให้เจ้าหน้าที่ทำการอนุมัติ</span>
+        <div class="w-full max-w-sm relative mt-4 mb-10 drop-shadow-2xl">
+            <!-- Badge E-TICKET -->
+            <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-orange-500 text-white font-black px-6 py-1.5 rounded-full z-20 shadow-md border-2 border-white text-sm whitespace-nowrap tracking-wide">
+                E-TICKET ประจำตัว
+            </div>
+            
+            <!-- Ticket Top (Info) -->
+            <div class="bg-gradient-to-b from-[#1e3a8a] to-[#3b82f6] rounded-t-3xl p-6 pt-10 text-center relative overflow-hidden">
+                <div class="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 bg-white opacity-10 rounded-full"></div>
+                <div class="absolute bottom-0 left-0 -ml-10 -mb-10 w-24 h-24 bg-white opacity-10 rounded-full"></div>
+
+                <div class="relative z-10 flex flex-col items-center">
+                    <div class="bg-white/20 backdrop-blur-sm border border-white/30 text-white font-bold px-6 py-1 rounded-full text-sm mb-4 inline-block">
+                        <span id="succType">-</span>
+                    </div>
+
+                    <div class="mb-2">
+                        <p class="text-blue-200 font-bold text-xs md:text-sm tracking-widest uppercase mb-1">CRA Open House 2027</p>
+                        <h3 class="text-4xl md:text-5xl font-black text-white tracking-wider my-1 drop-shadow-md font-mono" id="succId">-</h3>
+                    </div>
+
+                    <div class="mb-2">
+                        <p class="text-xl md:text-2xl font-bold text-white drop-shadow-sm" id="succName">-</p>
+                    </div>
+                </div>
             </div>
 
-            <div class="bg-white p-6 rounded-3xl border-2 border-slate-200 shadow-xl mb-6 flex justify-center">
-                <div id="displayQrCode" class="w-full flex justify-center items-center aspect-square"></div>
+            <!-- Ticket Divider -->
+            <div class="relative bg-white h-10 flex items-center justify-between overflow-hidden border-x border-slate-200">
+                <!-- Left Cutout -->
+                <div class="w-8 h-8 bg-[#f8fafc] rounded-full absolute -left-4 shadow-inner border-r border-slate-200"></div>
+                <!-- Dashed Line -->
+                <div class="w-full border-t-2 border-dashed border-slate-300 mx-6 relative z-10"></div>
+                <!-- Right Cutout -->
+                <div class="w-8 h-8 bg-[#f8fafc] rounded-full absolute -right-4 shadow-inner border-l border-slate-200"></div>
             </div>
-            <p class="text-sm text-rose-500 font-bold mb-8">* หลังจากอนุมัติแล้ว คุณสามารถโหลดเกียรติบัตรได้ที่เมนู E-Ticket</p>
+
+            <!-- Ticket Bottom (QR) - Show for Student -->
+            <div id="successQrSection" class="hidden bg-white rounded-b-3xl p-6 pb-8 text-center border-x border-b border-slate-200 relative">
+                <p class="text-slate-500 font-bold text-sm mb-4">แสดง QR Code เพื่อรับเกียรติบัตร</p>
+                <div class="bg-slate-50 p-3 rounded-2xl border border-slate-100 inline-block shadow-sm">
+                    <div id="displayQrCode" class="w-40 h-40 md:w-48 md:h-48 flex justify-center items-center bg-white rounded-xl overflow-hidden mx-auto"></div>
+                </div>
+            </div>
+            
+            <!-- Ticket Bottom (No QR) - Show for Normal User -->
+            <div id="successNormalSection" class="hidden bg-white rounded-b-3xl p-6 pb-8 text-center border-x border-b border-slate-200 relative">
+                <i class="fi fi-sr-heart text-5xl text-rose-400 mb-3 block"></i>
+                <p class="text-slate-600 font-bold text-base">ขอบคุณที่มาร่วมสนุกด้วยกัน<br>ในวันนี้ครับ/ค่ะ</p>
+            </div>
         </div>
 
-        <a href="home.html" class="bg-sky-500 hover:bg-sky-600 text-white px-10 py-4 rounded-2xl font-black text-lg transition shadow-md flex items-center gap-2">
+        <div id="instructionQr" class="hidden bg-orange-50 border border-orange-200 text-orange-800 px-5 py-4 rounded-2xl font-bold text-sm mb-8 w-full max-w-sm shadow-sm">
+            <div class="flex items-start gap-3 text-left">
+                <i class="fi fi-sr-info text-xl text-orange-500 shrink-0"></i>
+                <p class="leading-relaxed">ระบบได้รับข้อมูลของท่านแล้ว กรุณานำ <span class="text-orange-600 font-black underline decoration-orange-300">QR Code</span> และ <span class="text-orange-600 font-black underline decoration-orange-300">PASSPORT</span> ของท่านไปแสดงที่จุดตรวจสอบเพื่อขอรับเกียรติบัตร</p>
+            </div>
+        </div>
+
+        <a href="home.html" class="bg-slate-800 hover:bg-slate-900 text-white px-10 py-4 rounded-2xl font-black text-lg transition shadow-lg hover:shadow-xl hover:-translate-y-1 flex items-center gap-2">
             กลับหน้าหลัก <i class="fi fi-sr-home mt-1"></i>
         </a>
       </div>
@@ -494,13 +554,15 @@
       // หลักสูตรที่ 1: ดักจับ onChange เพื่อเอาวิชาที่เลือกออกจากการแสดงในช่องที่ 2
       renderCustomDropdown('course1', courses, '-- เลือกหลักสูตรที่สนใจอันดับ 1 --', 'fi-sr-star', function(val) {
           let filteredCourses = courses.filter(c => c !== val);
-          renderCustomDropdown('course2', filteredCourses, '-- เลือกหลักสูตร (ไม่บังคับ) --', 'fi-sr-star');
+          // อัปเดต dropdown course2 โดยเปลี่ยน placeholder ให้ระบุว่าบังคับเลือก (ลบคำว่า ไม่บังคับ)
+          renderCustomDropdown('course2', filteredCourses, '-- เลือกหลักสูตรที่สนใจอันดับ 2 --', 'fi-sr-star');
           if (document.getElementById('course2').value === val) {
               document.getElementById('course2').value = '';
           }
       });
       
-      renderCustomDropdown('course2', courses, '-- เลือกหลักสูตร (ไม่บังคับ) --', 'fi-sr-star');
+      // อัปเดต placeholder ของ course2 ตอนเริ่มต้น (เปลี่ยนข้อความให้ระบุว่าต้องเลือก)
+      renderCustomDropdown('course2', courses, '-- เลือกหลักสูตรที่สนใจอันดับ 2 --', 'fi-sr-star');
     };
 
     // ==========================================
@@ -647,6 +709,10 @@
 
       if (step === 3) {
         if (!document.getElementById('course1').value) return showError('กรุณาเลือกหลักสูตรที่ท่านสนใจมากที่สุด อันดับที่ 1');
+        
+        // เพิ่มการตรวจสอบให้บังคับเลือกหลักสูตรอันดับที่ 2
+        if (!document.getElementById('course2').value) return showError('กรุณาเลือกหลักสูตรที่ท่านสนใจมากที่สุด อันดับที่ 2');
+        
         let chkA = Array.from(document.querySelectorAll('input[name="chkActivity"]:checked'));
         if(chkA.length === 0) return showError('กรุณาเลือกกิจกรรมที่ท่านชอบอย่างน้อย 1 ข้อ');
         return true;
@@ -764,6 +830,7 @@
             cancelButtonColor: '#94a3b8',
             customClass: { popup: 'modern-popup' }
           }).then((r) => {
+             // เก็บข้อมูลทุกอย่างที่ได้จากชีตมาตอนตอบตกลง
              if(r.isConfirmed) fillData(data.id, data.name, data.email, data.phone, data.type);
              else {
                 document.getElementById('searchIdInput').value = '';
@@ -788,6 +855,7 @@
       document.getElementById('fullName').value = name;
       document.getElementById('email').value = email;
       document.getElementById('phoneHidden').value = phone;
+      document.getElementById('userTypeHidden').value = type; // เก็บประเภทที่ดึงมา
       
       const infoBox = document.getElementById('personalInfoBox');
       infoBox.classList.remove('opacity-50', 'pointer-events-none', 'bg-slate-50');
@@ -823,14 +891,16 @@
           img.onload = function() {
             const canvas = document.getElementById('canvas');
             const ctx = canvas.getContext('2d');
-            const MAX_WIDTH = 1200; 
+            // ลดขนาดภาพลงเพื่อให้ส่งข้อมูลได้เร็วขึ้น (จาก 1200 เป็น 800)
+            const MAX_WIDTH = 800; 
             let width = img.width, height = img.height;
 
             if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
             canvas.width = width; canvas.height = height;
             ctx.drawImage(img, 0, 0, width, height);
 
-            base64Image = canvas.toDataURL('image/jpeg', 0.6); 
+            // ลดคุณภาพรูปภาพ (quality) จาก 0.6 เป็น 0.5
+            base64Image = canvas.toDataURL('image/jpeg', 0.5); 
             
             document.getElementById('previewImg').src = base64Image; 
             document.getElementById('previewContainer').classList.remove('hidden');
@@ -865,10 +935,19 @@
         return showError('กรุณาอัพโหลด PASSPORT เพื่อเป็นหลักฐานในการรับเกียรติบัตร');
       }
 
+      // ตรวจสอบ PDPA Consent
+      const pdpaConsent = document.getElementById('pdpaConsent');
+      if (!pdpaConsent.checked) {
+          return showError('กรุณากดยอมรับเงื่อนไขการให้ข้อมูล (PDPA) ก่อนส่งแบบสอบถาม');
+      }
+
       let chkC = Array.from(document.querySelectorAll('input[name="chkChannel"]:checked')).map(el => el.value);
       if(document.querySelector('input[name="chkChannel"][value="อื่นๆ"]')?.checked) chkC.push("อื่นๆ: " + document.getElementById('otherChannel').value);
 
       let chkA = Array.from(document.querySelectorAll('input[name="chkActivity"]:checked')).map(el => el.value);
+      
+      // ดึงค่าประเภทที่ได้จากระบบ
+      const sheetUserType = document.getElementById('userTypeHidden').value;
 
       const payload = {
         action: 'submitForm',
@@ -911,9 +990,21 @@
             document.getElementById('successView').classList.remove('hidden');
             window.scrollTo(0,0);
 
+            // แสดงข้อมูลสรุป
+            document.getElementById('succName').innerText = payload.data.name || '';
+            document.getElementById('succId').innerText = payload.data.id || '';
+            
+            let userTypeLabel = 'ทั่วไป';
+            if (payload.data.type === 'นักเรียนและนักศึกษาที่มี PASSPORT') {
+                // ถ้าเป็นนักเรียน ให้แสดงประเภทที่ดึงมาจากชีตตอนค้นหาข้อมูล
+                userTypeLabel = sheetUserType || 'นักเรียน/นักศึกษา';
+            }
+            document.getElementById('succType').innerText = userTypeLabel;
+
             if (isStudent) {
-                document.getElementById('successDesc').innerText = 'ระบบได้รับข้อมูลเพื่อขอรับเกียรติบัตรแล้ว';
                 document.getElementById('successQrSection').classList.remove('hidden');
+                document.getElementById('instructionQr').classList.remove('hidden');
+                document.getElementById('successNormalSection').classList.add('hidden');
                 
                 // ใช้ QRCode.js สร้าง QR Code บนฝั่งผู้ใช้ทันทีเพื่อกันปัญหาภาพเสีย
                 const fullIdStr = payload.data.id;
@@ -921,14 +1012,27 @@
                 qrContainer.innerHTML = "";
                 new QRCode(qrContainer, {
                     text: fullIdStr,
-                    width: 250,
-                    height: 250,
-                    colorDark : "#0f172a", 
+                    width: 200, // ปรับขนาดให้พอดีกับการ์ด
+                    height: 200,
+                    colorDark : "#1e3a8a", // เปลี่ยนสี QR เป็นสีน้ำเงินเข้มให้เข้ากับธีมการ์ด
                     colorLight : "#ffffff",
                     correctLevel : QRCode.CorrectLevel.H
                 });
+                
+                // ปรับขนาดรูป QR ให้เต็มพื้นที่พอดี (เนื่องจาก qrcode.js อาจสร้างขนาดตายตัว)
+                setTimeout(() => {
+                   const qrImg = qrContainer.querySelector('img');
+                   if(qrImg) {
+                       qrImg.style.width = '100%';
+                       qrImg.style.height = '100%';
+                       qrImg.style.objectFit = 'contain';
+                   }
+                }, 100);
+
             } else {
-                document.getElementById('successDesc').innerText = 'หวังว่าจะได้พบกันใหม่ ขอให้มีความสุขสุขภาพแข็งแรงตลอดไปครับ';
+                document.getElementById('successQrSection').classList.add('hidden');
+                document.getElementById('instructionQr').classList.add('hidden');
+                document.getElementById('successNormalSection').classList.remove('hidden');
             }
         } else if(data.status === 'already') {
           Swal.fire({ icon: 'warning', title: 'ท่านทำแบบสอบถามไปแล้ว', text: 'รหัส ID นี้ได้ทำแบบสอบถามไปแล้วในระบบครับ', confirmButtonColor: '#f97316', customClass: { popup: 'modern-popup' }});
