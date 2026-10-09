@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>CRA Open House 2027 Portal</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/uicons-solid-rounded/css/uicons-solid-rounded.css'>
+  <!-- นำเข้า Lottie -->
+  <script src="https://unpkg.com/@lottiefiles/dotlottie-wc@0.8.11/dist/dotlottie-wc.js" type="module"></script>
+  
+  <style>
+    body { font-family: 'Noto Sans Thai', sans-serif; background-color: #f8fafc; overflow-x: hidden; -webkit-tap-highlight-color: transparent;}
+    
+    .glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15); border-radius: 2.5rem; }
+    
+    .hero-pattern {
+      background-image: radial-gradient(#1e3a8a 1px, transparent 1px);
+      background-size: 30px 30px;
+      background-position: -19px -19px;
+      opacity: 0.05;
+    }
+    
+    @keyframes blob { 0% { transform: translate(0px, 0px) scale(1); } 33% { transform: translate(30px, -50px) scale(1.1); } 66% { transform: translate(-20px, 20px) scale(0.9); } 100% { transform: translate(0px, 0px) scale(1); } }
+    .animate-blob { animation: blob 7s infinite; }
+    .animation-delay-2000 { animation-delay: 2s; }
+
+    .btn-action-primary { background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); color: white; transition: all 0.3s; }
+    .btn-action-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 25px -5px rgba(249, 115, 22, 0.5); }
+    
+    .btn-action-secondary { background: #ffffff; border: 2px solid #e2e8f0; color: #475569; transition: all 0.3s; }
+    .btn-action-secondary:hover { transform: translateY(-3px); border-color: #3b82f6; box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.2); }
+  </style>
+</head>
+<body class="relative min-h-dvh flex flex-col items-center justify-center p-4">
+
+  <!-- พื้นหลัง (เคลื่อนไหวและ Pattern) -->
+  <div class="fixed inset-0 bg-gradient-to-br from-[#eff6ff] via-[#dbeafe] to-[#e0e7ff] -z-50"></div>
+  <div class="fixed inset-0 hero-pattern z-0 pointer-events-none"></div>
+  <div class="fixed top-[-10%] left-[-10%] w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-[128px] opacity-30 animate-blob z-0"></div>
+  <div class="fixed bottom-[-10%] right-[-10%] w-96 h-96 bg-orange-400 rounded-full mix-blend-multiply filter blur-[128px] opacity-30 animate-blob animation-delay-2000 z-0"></div>
+
+  <!-- เนื้อหาหลัก -->
+  <div class="w-full max-w-xl relative z-10 animate-[fadeIn_0.5s_ease-out]">
+      <div class="glass-panel relative p-8 md:p-12 text-center flex flex-col items-center gap-6 border border-white/60">
+
+         <!-- โลโก้ -->
+         <div class="w-full flex justify-center items-center mb-2">
+            <a href='https://postimg.cc/qzxLdhxJ' target='_blank' class="inline-block transform hover:scale-105 transition">
+                <img src="https://i.postimg.cc/qzxLdhxJ/LOGO-CRAOH2027-01.png" alt="CRA Open House 2027 Logo" class="h-16 md:h-20 object-contain drop-shadow-sm">
+            </a>
+         </div>
+
+         <!-- ข้อความต้อนรับ -->
+         <div>
+             <h2 class="text-sm md:text-base text-blue-600 font-black uppercase mb-1 tracking-wider">ระบบบริการผู้เข้าร่วมงาน</h2>
+             <h1 class="text-3xl md:text-4xl font-extrabold text-slate-800 mb-2 tracking-tight">CRA Open House 2027</h1>
+             <p class="text-slate-500 mt-2 font-medium">ระบบแบบสอบถามความพึงพอใจและรับเกียรติบัตร</p>
+         </div>
+     
+         <!-- อนิเมชัน Lottie -->
+         <div class="relative w-full max-w-[220px] h-[220px] mx-auto my-2 drop-shadow-xl">
+             <dotlottie-wc src="https://lottie.host/9b1a6c0c-2528-404e-ae56-5d1be6879e56/GrvnonNKwQ.lottie" autoplay loop class="w-full h-full"></dotlottie-wc>
+         </div>
+     
+         <!-- กล่องข้อความอธิบาย (เพิ่มใหม่) -->
+         <div class="w-full bg-blue-50/60 border border-blue-100 rounded-2xl p-4 md:p-5 text-left relative overflow-hidden shadow-inner mt-1 mb-2">
+             <div class="absolute left-0 top-0 w-1.5 h-full bg-blue-500 rounded-l-2xl"></div>
+             <h3 class="font-black text-blue-800 text-sm md:text-base mb-2.5 flex items-center gap-2">
+                 <i class="fi fi-sr-info text-blue-500 mt-0.5"></i> ข้อแนะนำสำหรับผู้เข้าร่วมงาน
+             </h3>
+             <ul class="text-blue-700 font-medium text-[12px] md:text-sm space-y-2 leading-relaxed">
+                 <li class="flex items-start gap-2.5">
+                     <i class="fi fi-sr-check-circle text-blue-400 mt-0.5 text-[10px] md:text-xs shrink-0"></i> 
+                     <span>ขอความร่วมมือผู้ร่วมงานทุกคน <b>ทำแบบสอบถาม</b> เพื่อนำไปพัฒนาการจัดงานในครั้งต่อไป</span>
+                 </li>
+                 <li class="flex items-start gap-2.5">
+                     <i class="fi fi-sr-star text-orange-400 mt-0.5 text-[10px] md:text-xs shrink-0"></i> 
+                     <span><strong class="text-orange-600">ผู้ที่มี PASSPORT:</strong> เมื่อทำแบบสอบถามเสร็จแล้ว ให้นำ QR Code และ PASSPORT ไปแสดงกับพี่ทีมงานที่จุดตรวจ เพื่อตรวจตราประทับ และรับการอนุมัติรับเกียรติบัตร</span>
+                 </li>
+             </ul>
+         </div>
+     
+         <!-- กลุ่มปุ่มเมนู -->
+         <div class="w-full flex flex-col gap-4 mt-2">
+             <!-- ปุ่มที่ 1: ตอบแบบสอบถาม -->
+             <a href="form.html" class="btn-action-primary rounded-2xl p-4 md:p-5 w-full text-left cursor-pointer group flex items-center justify-between no-underline">
+                 <div class="flex items-center gap-4">
+                     <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                        <i class="fi fi-sr-poll-h text-2xl mt-1"></i>
+                     </div>
+                     <div>
+                         <span class="block text-lg md:text-xl font-black leading-tight">ตอบแบบสอบถาม</span>
+                         <span class="block text-xs md:text-sm text-orange-100 font-medium mt-0.5">ประเมินความพึงพอใจกิจกรรม</span>
+                     </div>
+                 </div>
+                 <i class="fi fi-sr-angle-right text-2xl group-hover:translate-x-1 transition-transform opacity-80"></i>
+             </a>
+             
+             <!-- ปุ่มที่ 2: เช็ค E-Ticket / เกียรติบัตร -->
+             <a href="logticket.html" class="btn-action-secondary rounded-2xl p-4 md:p-5 w-full text-left cursor-pointer group flex items-center justify-between no-underline">
+                 <div class="flex items-center gap-4">
+                     <div class="w-12 h-12 bg-slate-100 text-slate-400 group-hover:bg-blue-50 group-hover:text-blue-600 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-all">
+                        <i class="fi fi-sr-diploma text-2xl mt-1"></i>
+                     </div>
+                     <div>
+                         <span class="block text-lg md:text-xl font-black text-slate-700 leading-tight">E-Ticket & เกียรติบัตร</span>
+                         <span class="block text-xs md:text-sm text-slate-500 font-medium mt-0.5">ตรวจสอบสถานะ / ดาวน์โหลด</span>
+                     </div>
+                 </div>
+                 <i class="fi fi-sr-angle-right text-2xl text-slate-300 group-hover:text-blue-500 group-hover:translate-x-1 transition-transform"></i>
+             </a>
+         </div>
+
+         <p class="text-slate-400 font-medium text-[11px] mt-4">© 2026 CRA Education. All rights reserved.</p>
+
+      </div>
+  </div>
+
+</body>
+</html>
