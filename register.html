@@ -8,7 +8,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/uicons-solid-rounded/css/uicons-solid-rounded.css'>
-  <!-- นำเข้าแบรนด์ไอคอนจาก Uicons เพิ่มเติม สำหรับ Facebook, IG, TikTok, X -->
   <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/uicons-brands/css/uicons-brands.css'>
 
   <style>
@@ -84,9 +83,53 @@
 
     .loader-sm { width: 20px; height: 20px; border: 3px solid #FFF; border-bottom-color: transparent; border-radius: 50%; display: inline-block; animation: spin 1s linear infinite; }
     @keyframes spin { 100% { transform: rotate(360deg); } }
+
+    /* PDPA Popup */
+    #pdpaOverlay {
+        position: fixed; inset: 0; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(4px);
+        z-index: 9999; display: none; align-items: center; justify-content: center; padding: 1rem;
+        opacity: 0; transition: opacity 0.3s ease;
+    }
+    #pdpaModal {
+        background: white; border-radius: 1.5rem; max-width: 32rem; width: 100%; padding: 2rem;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); transform: translateY(20px);
+        transition: transform 0.3s ease; max-height: 90vh; display: flex; flex-direction: column;
+    }
+    #pdpaOverlay.show { opacity: 1; display: flex; }
+    #pdpaOverlay.show #pdpaModal { transform: translateY(0); }
   </style>
 </head>
 <body class="bg-gradient-to-br from-[#eff6ff] via-[#dbeafe] to-[#e0e7ff] bg-fixed min-h-screen relative flex flex-col items-center py-8 md:py-12 px-4 md:px-8">
+
+  <!-- 🌟 PDPA Popup 🌟 -->
+  <div id="pdpaOverlay">
+      <div id="pdpaModal">
+          <div class="flex items-center gap-3 mb-4 border-b border-slate-100 pb-4">
+              <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600 shrink-0">
+                  <i class="fi fi-sr-shield-check text-2xl mt-1"></i>
+              </div>
+              <h3 class="text-xl font-black text-slate-800">นโยบายคุ้มครองข้อมูลส่วนบุคคล (PDPA)</h3>
+          </div>
+          
+          <div class="overflow-y-auto pr-2 mb-6 text-sm text-slate-600 space-y-4 font-medium flex-grow">
+              <p>ราชวิทยาลัยจุฬาภรณ์ ให้ความสำคัญกับการคุ้มครองข้อมูลส่วนบุคคลของท่าน เพื่อให้การลงทะเบียนเข้าร่วมกิจกรรม CRA Open House 2027 เป็นไปด้วยความเรียบร้อย เราขอความยินยอมในการเก็บรวบรวม ใช้ และประมวลผลข้อมูลของท่าน ดังนี้:</p>
+              
+              <ul class="list-disc pl-5 space-y-2">
+                  <li><strong>วัตถุประสงค์:</strong> เพื่อใช้สำหรับการลงทะเบียน, ยืนยันตัวตน (E-Ticket), สื่อสารข้อมูลเกี่ยวกับงาน, และเพื่อวิเคราะห์ข้อมูลทางสถิติสำหรับการจัดกิจกรรมในอนาคต</li>
+                  <li><strong>ข้อมูลที่จัดเก็บ:</strong> ชื่อ-นามสกุล, เบอร์โทรศัพท์, อีเมล, ข้อมูลการศึกษา และข้อมูลอื่นๆ ที่ท่านกรอกในแบบฟอร์มนี้</li>
+                  <li><strong>การเก็บรักษา:</strong> ข้อมูลของท่านจะถูกเก็บรักษาไว้อย่างปลอดภัย และจะไม่ถูกเปิดเผยแก่บุคคลที่สามที่ไม่เกี่ยวข้อง โดยจะเก็บรักษาไว้ตามระยะเวลาที่จำเป็นต่อวัตถุประสงค์ข้างต้น</li>
+              </ul>
+              
+              <p>การคลิก <strong>"ยินยอม"</strong> ถือว่าท่านได้รับทราบและยินยอมให้เราดำเนินการกับข้อมูลส่วนบุคคลของท่านตามวัตถุประสงค์ที่ระบุไว้ข้างต้น</p>
+          </div>
+          
+          <div class="pt-4 border-t border-slate-100">
+              <button id="btnAcceptPDPA" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition-colors shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+                  <i class="fi fi-sr-check-circle mt-0.5"></i> ข้าพเจ้ายินยอม
+              </button>
+          </div>
+      </div>
+  </div>
 
   <!-- Floating Background -->
   <div class="floating-bg">
@@ -97,7 +140,7 @@
       <i class="fi fi-sr-books float-icon" style="left: 45%; font-size: 6rem; animation-duration: 30s; animation-delay: 2s;"></i>
   </div>
 
-  <div id="mainContent" class="w-full max-w-4xl relative z-10 flex flex-col items-center">
+  <div id="mainContent" class="w-full max-w-4xl relative z-10 flex flex-col items-center h-0 overflow-hidden opacity-0 hidden">
 
       <div class="w-full flex justify-between items-center mb-6">
           <a href="index.html" class="flex items-center gap-2 text-slate-600 hover:text-orange-500 font-bold bg-white px-6 py-3 rounded-xl shadow-sm border border-slate-100 transition-colors text-sm">
@@ -112,8 +155,20 @@
           <!-- Top Border Accent -->
           <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-600 to-orange-500 rounded-t-2xl"></div>
 
+          <!-- Closed View (แสดงเมื่อหมดเวลา) -->
+          <div id="closedView" class="hidden flex-col items-center py-12 md:py-16 text-center animate-[fadeIn_0.5s_ease-out] relative z-20">
+              <div class="w-24 h-24 bg-gradient-to-br from-rose-50 to-rose-100 rounded-full flex justify-center items-center mb-6 border-4 border-white shadow-lg">
+                  <i class="fi fi-sr-time-past text-5xl text-rose-500 mt-2"></i>
+              </div>
+              <h2 class="text-3xl md:text-4xl font-black text-slate-800 mb-3 tracking-tight">ปิดรับลงทะเบียน</h2>
+              <p class="text-lg text-slate-600 mb-8 max-w-md font-medium">ขออภัย ระบบได้ปิดรับลงทะเบียนแล้ว<br>เนื่องจากหมดเวลาที่กำหนด (10 ต.ค. 2569 เวลา 12:00 น.)</p>
+              <a href="index.html" class="btn-action px-8 py-3.5 font-black text-lg shadow-md hover:shadow-lg inline-flex items-center gap-2">
+                  <i class="fi fi-sr-home"></i> กลับสู่หน้าหลัก
+              </a>
+          </div>
+
           <!-- Stepper Indicator -->
-          <div id="formStepper" class="mb-12 relative max-w-2xl mx-auto px-4 mt-4">
+          <div id="formStepper" class="mb-12 relative max-w-2xl mx-auto px-4 mt-4 hidden">
               <div class="flex items-center justify-between relative z-10">
                   <div class="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1.5 bg-slate-100 -z-10 rounded-full"></div>
                   <div class="absolute left-0 top-1/2 -translate-y-1/2 h-1.5 bg-orange-500 transition-all duration-500 rounded-full" id="progressBar" style="width: 0%;"></div>
@@ -133,7 +188,7 @@
               </div>
           </div>
 
-          <form id="regForm">
+          <form id="regForm" class="hidden">
 
               <!-- STEP 1: ข้อมูลส่วนตัว -->
               <div id="step1" class="step-section active space-y-8 pb-4">
@@ -303,7 +358,7 @@
               </div>
           </div>
 
-          <!-- กลุ่มปุ่มจัดการ E-Ticket (จัดคอลัมน์) -->
+          <!-- กลุ่มปุ่มจัดการ E-Ticket -->
           <div class="flex flex-col gap-4 w-full max-w-md mb-8 px-2 relative z-10">
              <a id="btnDownload" href="#" target="_blank" class="group relative w-full flex items-center justify-center gap-3 py-4 bg-gradient-to-r from-orange-500 to-rose-500 text-white rounded-2xl font-black text-lg shadow-[0_10px_25px_-5px_rgba(249,115,22,0.5)] hover:shadow-[0_15px_30px_-5px_rgba(249,115,22,0.6)] transform hover:-translate-y-1 transition-all duration-300 no-underline overflow-hidden border border-orange-400/50">
                 <div class="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -311,7 +366,7 @@
                 <span class="relative z-10">ดาวน์โหลด QR Code เก็บไว้</span>
              </a>
              
-             <!-- แถวใหม่ จัดแบบ 2 คอลัมน์ สำหรับ Calendar & Email -->
+             <!-- Calendar & Email -->
              <div class="grid grid-cols-2 gap-4 w-full">
                  <a id="btnCalendar" href="#" target="_blank" class="w-full bg-white text-indigo-600 py-3.5 rounded-2xl font-bold flex items-center justify-center gap-2.5 no-underline hover:bg-indigo-50 hover:text-indigo-700 transition-all border border-indigo-100 shadow-[0_4px_10px_-4px_rgba(79,70,229,0.1)] hover:border-indigo-300 hover:shadow-md transform hover:-translate-y-0.5 text-[15px]">
                     <i class="fi fi-sr-calendar text-lg mt-0.5"></i>
@@ -343,7 +398,6 @@
   </div>
 
   <script>
-    // ⚠️ นำลิงก์ Web App มาใส่ที่นี่ ⚠️
     const GAS_URL = 'https://script.google.com/macros/s/AKfycby5DEx-6Ih4FaVca6jCjm6ZEbrYf-sX4BJ_HPjm8Zu03RABG4cWD8aAXRNi2Vdm8RGQ4g/exec'; 
 
     async function apiCall(action, data = {}) {
@@ -379,7 +433,7 @@
         { name: "Facebook", icon: "fi-brands-facebook" },
         { name: "Instagram", icon: "fi-brands-instagram" },
         { name: "TikTok", icon: "fi-brands-tik-tok" },
-        { name: "X (Twitter)", icon: "fi fi-brands-twitter" }
+        { name: "X (Twitter)", icon: "fi-brands-twitter" }
     ];
 
     const provinces = ["กรุงเทพมหานคร","กระบี่","กาญจนบุรี","กาฬสินธุ์","กำแพงเพชร","ขอนแก่น","จันทบุรี","ฉะเชิงเทรา","ชลบุรี","ชัยนาท","ชัยภูมิ","ชุมพร","เชียงราย","เชียงใหม่","ตรัง","ตราด","ตาก","นครนายก","นครปฐม","นครพนม","นครราชสีมา","นครศรีธรรมราช","นครสวรรค์","นนทบุรี","นราธิวาส","น่าน","บึงกาฬ","บุรีรัมย์","ปทุมธานี","ประจวบคีรีขันธ์","ปราจีนบุรี","ปัตตานี","พระนครศรีอยุธยา","พะเยา","พังงา","พัทลุง","พิจิตร","พิษณุโลก","เพชรบุรี","เพชรบูรณ์","แพร่","ภูเก็ต","มหาสารคาม","มุกดาหาร","แม่ฮ่องสอน","ยโสธร","ยะลา","ร้อยเอ็ด","ระนอง","ระยอง","ราชบุรี","ลพบุรี","ลำปาง","ลำพูน","เลย","ศรีสะเกษ","สกลนคร","สงขลา","สตูล","สมุทรปราการ","สมุทรสงคราม","สมุทรสาคร","สระแก้ว","สระบุรี","สิงห์บุรี","สุโขทัย","สุพรรณบุรี","สุราษฎร์ธานี","สุรินทร์","หนองคาย","หนองบัวลำภู","อ่างทอง","อำนาจเจริญ","อุดรธานี","อุตรดิตถ์","อุทัยธานี","อุบลราชธานี"];
@@ -387,24 +441,47 @@
     const domains = ['@gmail.com', '@hotmail.com', '@yahoo.com', '@outlook.com'];
 
     window.onload = function() {
-        document.getElementById('mainContent').classList.remove('h-0', 'overflow-hidden', 'opacity-0', 'hidden');
+        const CLOSE_DATE = new Date("2026-10-10T12:00:00+07:00");
+        const now = new Date();
 
-        // Fetch Schools silently ผ่านระบบ POST เพื่อไม่ให้เบราว์เซอร์บล็อก
+        if (now >= CLOSE_DATE) {
+            document.getElementById('closedView').classList.remove('hidden');
+            document.getElementById('closedView').classList.add('flex');
+            document.getElementById('mainContent').classList.remove('h-0', 'overflow-hidden', 'opacity-0', 'hidden');
+            return; 
+        }
+
+        // 🌟 ถ้ายื่นเวลา แสดง PDPA Popup ก่อน 🌟
+        document.getElementById('mainContent').classList.remove('h-0', 'overflow-hidden', 'opacity-0', 'hidden');
+        
+        // เซ็ตระบบให้แสดง Popup (Delay เล็กน้อยให้ดูเนียนตา)
+        setTimeout(() => {
+            document.getElementById('pdpaOverlay').classList.add('show');
+        }, 300);
+
+        // เมื่อกดยินยอม
+        document.getElementById('btnAcceptPDPA').addEventListener('click', function() {
+            document.getElementById('pdpaOverlay').classList.remove('show');
+            setTimeout(() => {
+                document.getElementById('pdpaOverlay').style.display = 'none';
+                // โชว์ฟอร์มและ Stepper
+                document.getElementById('formStepper').classList.remove('hidden');
+                document.getElementById('regForm').classList.remove('hidden');
+            }, 300); // รอ animation opacity จบ
+        });
+
         apiCall('getSchoolData')
             .then(data => { rawSchoolData = data; })
             .catch(err => console.log("School load error", err));
 
-        // 🌟 Celebrate Checkbox Render (เลือกได้หลายข้อ) 🌟
+        // Celebrate Checkbox Render 
         const svgCelebrate = `<svg class="celebrate-svg"><path d="M27 27l-6-6M27 27l6 6M27 27l-6 6M27 27l6-6" /><circle cx="27" cy="27" r="16"/></svg>`;
         const buildCheck = (arr, name) => arr.map(i => `<label class="celebrate-wrapper shadow-sm"><input type="checkbox" name="${name}" value="${i}"><div class="celebrate-box"></div>${svgCelebrate}<span class="celebrate-text">${i}</span></label>`).join('');
 
-        // Render source checkboxes
         let htmlSources = buildCheck(sources, 'chkSource');
-        // Add "Others" option separately to handle toggling the text input
         htmlSources += `<label class="celebrate-wrapper shadow-sm"><input type="checkbox" id="chkOtherSource" onchange="toggleOtherSourceInput()"><div class="celebrate-box"></div>${svgCelebrate}<span class="celebrate-text">อื่นๆ (ให้พิมพ์ระบุ)</span></label>`;
         document.getElementById('sourceGroup').innerHTML = htmlSources;
 
-        // 🌟 Initialize Universal Custom Dropdowns 🌟
         renderCustomDropdown('userType', ['นักเรียน','นักศึกษา', 'คุณครู', 'ผู้ปกครองและบุคคลทั่วไป'], '-- เลือกประเภท --', 'fi-sr-users', updateDynamicFields);
         renderCustomDropdown('age', ['ต่ำกว่า 15 ปี', '16 - 18 ปี', '19 - 22 ปี', 'มากกว่า 23 ปี'], '-- เลือกช่วงอายุ --', 'fi-sr-calendar');
         renderCustomDropdown('prefix', ['นาย', 'นางสาว', 'เด็กชาย', 'เด็กหญิง', 'นาง'], '-- เลือก --', 'fi-sr-venus-mars');
@@ -413,8 +490,6 @@
         renderCustomDropdown('grade', ["มัธยมศึกษาปีที่ 1", "มัธยมศึกษาปีที่ 2", "มัธยมศึกษาปีที่ 3", "มัธยมศึกษาปีที่ 4", "มัธยมศึกษาปีที่ 5", "มัธยมศึกษาปีที่ 6", "อื่นๆ (โปรดระบุ)"], '-- เลือกระดับชั้น --', 'fi-sr-book-alt', (v) => checkOther({value:v}, 'otherGrade'));
 
         renderCustomDropdown('favCourse', coursesMap, '-- เลือกหลักสูตรที่สนใจ --', 'fi-sr-star');
-
-        // เปลี่ยนใช้ platformsMap ที่เป็น object พร้อม icon brand
         renderCustomDropdown('followPlatform', platformsMap, '-- เลือกแพลตฟอร์ม --', 'fi-sr-mobile-notch');
 
         // Email Autocomplete Setup
@@ -428,9 +503,6 @@
         });
     };
 
-    // ====================================================
-    // 🌟 THE UNIVERSAL CUSTOM DROPDOWN ENGINE 🌟
-    // ====================================================
     function renderCustomDropdown(inputId, optionsData, placeholder, defaultIcon, onChangeCallback) {
         const container = document.getElementById(`dd-${inputId}`);
         if(!container) return;
@@ -452,6 +524,7 @@
         optionsData.forEach(opt => {
             let val = typeof opt === 'string' ? opt : opt.name;
             let icon = typeof opt === 'string' ? defaultIcon : (opt.icon || defaultIcon);
+            // เปลี่ยน text-orange-50 เป็น text-orange-500 เพื่อให้ไอคอนแสดงสีส้มชัดเจน
             html += `
                 <div class="c-option" data-value="${val}" data-icon="${icon}">
                     <div class="w-10 h-10 bg-orange-50 rounded-full flex items-center justify-center text-orange-500 shrink-0"><i class="fi ${icon} mt-1 text-base"></i></div>
@@ -559,7 +632,6 @@
                     document.getElementById('schoolInputSearch').value = r[0];
                     document.getElementById('provinceSelect').value = r[1];
 
-                    // อัปเดต UI ของ Dropdown จังหวัดให้แสดงชื่อจังหวัดที่ระบบเลือกให้อัตโนมัติ
                     var provTextDisplay = document.getElementById('text-provinceSelect');
                     if (provTextDisplay) {
                         provTextDisplay.innerHTML = `<div class="w-10 h-10 bg-orange-50 rounded-full flex items-center justify-center text-orange-500 shrink-0"><i class="fi fi-sr-map-marker mt-1 text-base"></i></div> ${r[1]}`;
@@ -618,7 +690,6 @@
         const title = encodeURIComponent("งาน CRA Open House 2027 ราชวิทยาลัยจุฬาภรณ์");
         const details = encodeURIComponent(`รหัส E-Ticket ของคุณคือ: ${id}\n\nอย่าลืมเตรียม QR Code เพื่อใช้สแกนเข้างาน แล้วพบกันครับ!`);
         const location = encodeURIComponent("ราชวิทยาลัยจุฬาภรณ์ (Chulabhorn Royal Academy)");
-        // ตั้งเวลางาน 10 ต.ค. 2026 เวลา 08:00 - 16:00 น. (เวลาไทย UTC+7 แปลงเป็น UTC คือ 01:00 - 09:00 Z)
         const dates = "20261010T010000Z/20261010T090000Z";
         return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${dates}&details=${details}&location=${location}`;
     }
@@ -680,7 +751,6 @@
                 document.getElementById('btnDownload').href = res.qrUrl;
                 document.getElementById('btnReport').href = `mailto:craopenhouse@gmail.com?subject=${reportSubject}&body=${reportBody}`;
                 
-                // กำหนดลิงก์เพิ่มลงปฏิทิน
                 document.getElementById('btnCalendar').href = generateCalendarLink(res.id);
 
                 window.scrollTo(0,0);
