@@ -374,6 +374,13 @@
              <p class="text-emerald-600/90 font-bold text-sm mt-1">ระบบได้ประมวลผลและสร้างเกียรติบัตรให้ท่านเรียบร้อยแล้ว 💙</p>
            </div>
            
+           <!-- กล่องแสดงชื่อและ ID แทรกระหว่างแบนเนอร์และเกียรติบัตร -->
+           <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 text-center">
+               <p class="text-slate-500 text-[11px] md:text-xs font-bold uppercase tracking-widest mb-1">รหัสประจำตัว E-Ticket</p>
+               <h3 class="text-2xl md:text-3xl font-black text-orange-500 font-mono tracking-widest mb-1 drop-shadow-sm" id="succCertId">-</h3>
+               <p class="text-slate-800 font-bold text-base md:text-lg" id="succCertName">-</p>
+           </div>
+
            <!-- กล่อง E-Certificate -->
            <div class="bg-slate-800 rounded-[28px] shadow-xl p-6 md:p-8 border border-slate-700 text-left w-full">
              <h3 class="text-white font-black text-xl mb-4 flex items-center gap-2">
@@ -719,6 +726,10 @@
             if (isStudent && data.certStatus === 'อนุมัติแล้ว' && data.certLink) {
                 document.getElementById('successStudentSection').classList.remove('hidden');
                 document.getElementById('successNormalSection').classList.add('hidden');
+                
+                // ใส่ข้อมูล ชื่อ และ ID
+                document.getElementById('succCertId').innerText = payload.data.id || '-';
+                document.getElementById('succCertName').innerText = payload.data.name || '-';
                 
                 let iframeLink = data.certLink.includes('/view') ? data.certLink.replace('/view', '/preview') : data.certLink;
                 let certHtml = `
