@@ -55,8 +55,8 @@
 
          <!-- ข้อความต้อนรับ -->
          <div>
-             <h2 class="text-sm md:text-base text-blue-600 font-black uppercase mb-1 tracking-wider">ระบบบริการผู้เข้าร่วมงาน</h2>
-             <h1 class="text-3xl md:text-4xl font-extrabold text-slate-800 mb-2 tracking-tight">CRA Open House 2027</h1>
+             <h2 class="text-sm md:text-base text-blue-600 font-black uppercase mb-1 tracking-wider">ระบบบริการผู้เข้าร่วมงาน วันที่ 10 ตุลาคม 2569</h2>
+             <h1 class="text-3xl md:text-4xl font-extrabold text-slate-800 mb-2 tracking-tight">CRA Open House 2027<br>Health Science NEXT GEN</h1>
              <p class="text-slate-500 mt-2 font-medium">ระบบแบบสอบถามความพึงพอใจและรับเกียรติบัตร</p>
          </div>
      
@@ -65,7 +65,7 @@
              <dotlottie-wc src="https://lottie.host/9b1a6c0c-2528-404e-ae56-5d1be6879e56/GrvnonNKwQ.lottie" autoplay loop class="w-full h-full"></dotlottie-wc>
          </div>
      
-         <!-- กล่องข้อความอธิบาย (เพิ่มใหม่) -->
+         <!-- กล่องข้อความอธิบาย -->
          <div class="w-full bg-blue-50/60 border border-blue-100 rounded-2xl p-4 md:p-5 text-left relative overflow-hidden shadow-inner mt-1 mb-2">
              <div class="absolute left-0 top-0 w-1.5 h-full bg-blue-500 rounded-l-2xl"></div>
              <h3 class="font-black text-blue-800 text-sm md:text-base mb-2.5 flex items-center gap-2">
@@ -78,25 +78,31 @@
                  </li>
                  <li class="flex items-start gap-2.5">
                      <i class="fi fi-sr-star text-orange-400 mt-0.5 text-[10px] md:text-xs shrink-0"></i> 
-                     <span><strong class="text-orange-600">ผู้ที่มี PASSPORT:</strong> เมื่อทำแบบสอบถามเสร็จแล้ว ให้นำ QR Code และ PASSPORT ไปแสดงกับพี่ทีมงานที่จุดตรวจ เพื่อตรวจตราประทับ และรับการอนุมัติรับเกียรติบัตร</span>
+                     <span><strong class="text-orange-600">ผู้ที่มี PASSPORT(นักเรียน,นักศึกษา):</strong> เมื่อทำแบบสอบถามเสร็จแล้วจะได้รับเกียรติบัตรทันที</span>
+                 </li>
+                 <li class="flex items-start gap-2.5">
+                     <i class="fi fi-sr-star text-orange-400 mt-0.5 text-[10px] md:text-xs shrink-0"></i> 
+                     <span><strong class="text-orange-600">หากลืม E-TICKET หรือต้องการหาเกียรติบัตร:</strong> กรณีทำแบบสอบถามเสร็จแล้วให้กดปุ่ม E-TICKET&เกียรติบัตร กรอกเบอร์ที่ลงทะเบียนเพื่อค้นหา</span>
                  </li>
              </ul>
          </div>
      
          <!-- กลุ่มปุ่มเมนู -->
          <div class="w-full flex flex-col gap-4 mt-2">
-             <!-- ปุ่มที่ 1: ตอบแบบสอบถาม -->
-             <a href="form.html" class="btn-action-primary rounded-2xl p-4 md:p-5 w-full text-left cursor-pointer group flex items-center justify-between no-underline">
+             <!-- ปุ่มที่ 1: ตอบแบบสอบถาม (มี ID สำหรับ JS) -->
+             <a href="form.html" id="surveyBtn" class="btn-action-primary rounded-2xl p-4 md:p-5 w-full text-left cursor-pointer group flex items-center justify-between no-underline transition-all duration-300">
                  <div class="flex items-center gap-4">
-                     <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                     <div id="surveyIconBg" class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                         <i class="fi fi-sr-poll-h text-2xl mt-1"></i>
                      </div>
                      <div>
-                         <span class="block text-lg md:text-xl font-black leading-tight">ตอบแบบสอบถาม</span>
-                         <span class="block text-xs md:text-sm text-orange-100 font-medium mt-0.5">ประเมินความพึงพอใจกิจกรรม</span>
+                         <span id="surveyTitle" class="block text-lg md:text-xl font-black leading-tight">ตอบแบบสอบถาม</span>
+                         <span id="countdownText" class="block text-xs md:text-sm text-orange-100 font-bold mt-1 flex items-center gap-1.5">
+                             <i class="fi fi-sr-time-fast mt-0.5"></i> กำลังโหลดเวลา...
+                         </span>
                      </div>
                  </div>
-                 <i class="fi fi-sr-angle-right text-2xl group-hover:translate-x-1 transition-transform opacity-80"></i>
+                 <i id="surveyArrow" class="fi fi-sr-angle-right text-2xl group-hover:translate-x-1 transition-transform opacity-80"></i>
              </a>
              
              <!-- ปุ่มที่ 2: เช็ค E-Ticket / เกียรติบัตร -->
@@ -119,5 +125,57 @@
       </div>
   </div>
 
+  <script>
+    // ตั้งค่าเวลาสิ้นสุด: 16 ตุลาคม 2569 เวลา 12:00:00 น.
+    const countDownDate = new Date("Oct 16, 2026 12:00:00").getTime();
+
+    // อัปเดตทุกๆ 1 วินาที
+    const timerInterval = setInterval(function() {
+        const now = new Date().getTime();
+        const distance = countDownDate - now;
+
+        // ดึง Elements ของปุ่มแบบสอบถาม
+        const btn = document.getElementById("surveyBtn");
+        const text = document.getElementById("countdownText");
+        const iconBg = document.getElementById("surveyIconBg");
+        const arrow = document.getElementById("surveyArrow");
+        const title = document.getElementById("surveyTitle");
+
+        if (distance > 0) {
+            // คำนวณวัน, ชั่วโมง, นาที
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+
+            // จัดรูปแบบข้อความ
+            let timeString = "เหลือเวลา: ";
+            if (days > 0) timeString += `${days} วัน `;
+            timeString += `${hours} ชม. ${minutes} นาที`;
+
+            text.innerHTML = `<i class="fi fi-sr-time-fast mt-0.5"></i> ${timeString}`;
+        } else {
+            // หมดเวลา
+            clearInterval(timerInterval);
+            
+            // ปิดการใช้งานปุ่ม และเปลี่ยน UI เป็นสีเทา
+            btn.removeAttribute("href");
+            btn.classList.remove("btn-action-primary");
+            btn.classList.add("bg-slate-100", "border-2", "border-slate-200", "text-slate-400", "cursor-not-allowed");
+            
+            title.innerText = "ปิดรับแบบสอบถามแล้ว";
+            title.classList.remove("text-white");
+            title.classList.add("text-slate-500");
+            
+            text.innerHTML = `<i class="fi fi-sr-lock mt-0.5"></i> หมดเขต 16 ต.ค. 69 เวลา 12:00 น.`;
+            text.classList.remove("text-orange-100");
+            text.classList.add("text-slate-400");
+            
+            iconBg.classList.remove("bg-white/20", "group-hover:scale-110");
+            iconBg.classList.add("bg-slate-200", "text-slate-400");
+            
+            arrow.style.display = "none";
+        }
+    }, 1000);
+  </script>
 </body>
 </html>
