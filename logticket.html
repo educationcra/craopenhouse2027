@@ -17,6 +17,11 @@
     .modern-popup { border-radius: 24px !important; font-family: 'Noto Sans Thai', sans-serif !important; } 
     input[type="tel"]::-webkit-inner-spin-button, 
     input[type="tel"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    
+    /* สไตล์สำหรับกล่องแนะนำอีเมล */
+    #emailDomains { position: absolute; z-index: 60; background: white; border: 2px solid #e2e8f0; border-radius: 1rem; width: 100%; max-height: 220px; overflow-y: auto; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); display: none; margin-top: 4px; text-align: left;}
+    #emailDomains div { padding: 14px 20px; cursor: pointer; font-weight: 600; border-bottom: 1px solid #f1f5f9; transition: 0.2s; color: #475569; }
+    #emailDomains div:hover { background: #fff7ed; color: #ea580c; padding-left: 24px; }
   </style>
 </head>
 <body class="min-h-screen flex flex-col items-center pt-10 pb-24 px-4 relative overflow-x-hidden">
@@ -32,15 +37,29 @@
       <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6 text-blue-500">
         <i class="fi fi-sr-smartphone text-4xl mt-1"></i>
       </div>
-      <h2 class="text-2xl font-black text-slate-800 mb-2">ตรวจสอบสถานะ</h2>
-      <p class="text-slate-500 font-bold mb-6 text-sm">กรุณากรอกเบอร์โทรศัพท์ที่ใช้ลงทะเบียน</p>
+      <h2 class="text-2xl font-black text-slate-800 mb-4">ตรวจสอบสถานะ<br>E-TICKET&เกียรติบัตร</h2>
+      
+      <!-- ปุ่มสลับโหมดการค้นหา -->
+      <div class="flex bg-slate-100 p-1.5 rounded-2xl mb-6">
+        <button type="button" onclick="setSearchMode('phone')" id="btnModePhone" class="flex-1 py-2.5 rounded-xl text-sm md:text-base font-bold bg-white shadow-sm text-slate-800 transition">เบอร์โทรศัพท์</button>
+        <button type="button" onclick="setSearchMode('email')" id="btnModeEmail" class="flex-1 py-2.5 rounded-xl text-sm md:text-base font-bold text-slate-400 hover:text-slate-700 transition">อีเมล</button>
+      </div>
 
       <form onsubmit="checkTicket(event)">
-        <div class="relative mb-6">
+        
+        <!-- โหมดเบอร์โทรศัพท์ -->
+        <div id="phoneWrap" class="relative mb-6">
           <i class="fi fi-sr-phone-call absolute left-5 top-1/2 -translate-y-1/2 text-slate-400"></i>
-          <!-- บังคับกรอก 10 หลัก -->
           <input type="tel" id="phoneInput" class="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl py-4 pl-14 pr-4 text-xl font-black text-slate-800 outline-none focus:border-blue-500 transition-colors text-center tracking-widest" placeholder="08XXXXXXXX" maxlength="10" minlength="10" oninput="this.value=this.value.replace(/\D/g, '')" required autocomplete="off">
         </div>
+
+        <!-- โหมดอีเมล -->
+        <div id="emailWrap" class="relative mb-6 hidden text-left">
+          <i class="fi fi-sr-envelope absolute left-5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+          <input type="email" id="emailInput" class="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl py-4 pl-14 pr-4 text-lg font-bold text-slate-800 outline-none focus:border-blue-500 transition-colors" placeholder="example@gmail.com" oninput="showEmailDomains(this.value)" autocomplete="off">
+          <div id="emailDomains"></div>
+        </div>
+
         <button type="submit" id="btnCheck" class="w-full bg-slate-800 text-white font-black py-4 rounded-2xl hover:bg-slate-700 transition shadow-lg flex justify-center items-center gap-2">
           ตรวจสอบข้อมูล <i class="fi fi-sr-arrow-right mt-1"></i>
         </button>
@@ -74,13 +93,71 @@
 
   <script>
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwDhvM_hVuC-YRXCt58u6kDxIXtPLZrcvufI7oWqFSMgg7g_Gf9aEYB42NyYMSCO5IlYQ/exec';
+    
+    let currentSearchMode = 'phone';
+    const domains = ['@gmail.com', '@hotmail.com', '@yahoo.com', '@outlook.com'];
+
+    // จัดการสลับโหมดการค้นหา
+    function setSearchMode(mode) {
+      currentSearchMode = mode;
+      const btnPhone = document.getElementById('btnModePhone');
+      const btnEmail = document.getElementById('btnModeEmail');
+      const wrapPhone = document.getElementById('phoneWrap');
+      const wrapEmail = document.getElementById('emailWrap');
+      const inputPhone = document.getElementById('phoneInput');
+      const inputEmail = document.getElementById('emailInput');
+
+      if (mode === 'phone') {
+        btnPhone.className = 'flex-1 py-2.5 rounded-xl text-sm md:text-base font-bold bg-white shadow-sm text-slate-800 transition';
+        btnEmail.className = 'flex-1 py-2.5 rounded-xl text-sm md:text-base font-bold text-slate-400 hover:text-slate-700 transition';
+        wrapPhone.classList.remove('hidden');
+        wrapEmail.classList.add('hidden');
+        inputPhone.required = true;
+        inputEmail.required = false;
+      } else {
+        btnEmail.className = 'flex-1 py-2.5 rounded-xl text-sm md:text-base font-bold bg-white shadow-sm text-slate-800 transition';
+        btnPhone.className = 'flex-1 py-2.5 rounded-xl text-sm md:text-base font-bold text-slate-400 hover:text-slate-700 transition';
+        wrapEmail.classList.remove('hidden');
+        wrapPhone.classList.add('hidden');
+        inputEmail.required = true;
+        inputPhone.required = false;
+      }
+    }
+
+    // ระบบแนะนำโดเมนอีเมล
+    function showEmailDomains(val) {
+      const box = document.getElementById('emailDomains');
+      if (val.includes('@') || val.length < 1) { box.style.display = 'none'; return; }
+      box.innerHTML = domains.map(d => `<div onclick="document.getElementById('emailInput').value='${val}${d}'; this.parentElement.style.display='none'">${val}<span class="text-orange-500 font-bold">${d}</span></div>`).join('');
+      box.style.display = 'block';
+    }
+
+    // ปิดกล่องแนะนำอีเมลเมื่อคลิกที่อื่น
+    document.addEventListener('click', (e) => {
+       if (e.target.id !== 'emailInput') {
+           const box = document.getElementById('emailDomains');
+           if(box) box.style.display = 'none';
+       }
+    });
 
     function checkTicket(e) {
       e.preventDefault();
-      const phone = document.getElementById('phoneInput').value;
-      if(phone.length !== 10) {
-          Swal.fire({ icon: 'warning', title: 'เบอร์โทรศัพท์ไม่ถูกต้อง', text: 'กรุณากรอกเบอร์โทรศัพท์ให้ครบ 10 หลัก', customClass: { popup: 'modern-popup' } });
-          return;
+      let payloadData = {};
+
+      if (currentSearchMode === 'phone') {
+        const phone = document.getElementById('phoneInput').value;
+        if(phone.length !== 10) {
+            Swal.fire({ icon: 'warning', title: 'เบอร์โทรศัพท์ไม่ถูกต้อง', text: 'กรุณากรอกเบอร์โทรศัพท์ให้ครบ 10 หลัก', customClass: { popup: 'modern-popup' } });
+            return;
+        }
+        payloadData = { searchType: 'phone', phone: phone };
+      } else {
+        const email = document.getElementById('emailInput').value;
+        if(!email.includes('@')) {
+            Swal.fire({ icon: 'warning', title: 'อีเมลไม่ถูกต้อง', text: 'กรุณากรอกอีเมลให้ถูกต้อง', customClass: { popup: 'modern-popup' } });
+            return;
+        }
+        payloadData = { searchType: 'email', email: email };
       }
 
       const btn = document.getElementById('btnCheck');
@@ -89,7 +166,7 @@
 
       fetch(SCRIPT_URL, { 
         method: 'POST', 
-        body: JSON.stringify({ action: 'checkTicket', data: { phone: phone } }) 
+        body: JSON.stringify({ action: 'checkTicket', data: payloadData }) 
       })
       .then(res => res.json())
       .then(data => {
@@ -102,7 +179,7 @@
           
           document.getElementById('showId').innerText = data.data.id;
           document.getElementById('showName').innerText = data.data.name;
-          document.getElementById('showType').innerText = data.data.type;
+          document.getElementById('showType').innerText = data.data.type || 'ทั่วไป';
           
           const qrContainer = document.getElementById('showQr');
           qrContainer.innerHTML = ""; 
@@ -144,7 +221,8 @@
           }
 
         } else {
-          Swal.fire({ icon: 'error', title: 'ไม่พบข้อมูล E-Ticket', text: 'เบอร์โทรศัพท์นี้ไม่ได้ลงทะเบียนไว้ในระบบ', customClass: { popup: 'modern-popup' } });
+          // แจ้งเตือนข้อผิดพลาด
+          Swal.fire({ icon: 'error', title: 'ไม่พบข้อมูล E-Ticket', text: data.message || 'ไม่พบข้อมูลในระบบ โปรดตรวจสอบใหม่อีกครั้ง', customClass: { popup: 'modern-popup' } });
         }
       }).catch(() => { 
           btn.innerHTML = 'ตรวจสอบข้อมูล <i class="fi fi-sr-arrow-right mt-1"></i>'; 
@@ -178,7 +256,6 @@
         return;
       }
 
-      // เนื่องจากเปลี่ยนระบบเป็น Auto-Approve แล้ว 'รออนุมัติ' จะเกิดขึ้นได้น้อยมาก แต่ยังเก็บ UI ไว้เผื่อ Error/Fallback
       if (data.certStatus === 'รออนุมัติ' || data.certStatus === '-' || data.certStatus === 'กำลังสร้าง PDF') {
         wrap.innerHTML = `
           <div class="bg-white rounded-3xl shadow-lg p-6 border border-slate-100">
@@ -222,7 +299,7 @@
               </div>
               <div class="grid grid-cols-2 gap-3">
                 <a href="${data.certLink}" target="_blank" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3.5 rounded-xl transition shadow-md flex items-center justify-center gap-2 text-sm md:text-base">
-                  <i class="fi fi-sr-download mt-0.5"></i> เปิดไฟล์ดาวน์โหลด
+                  <i class="fi fi-sr-download mt-0.5"></i> เปิดไฟล์
                 </a>
                 <button onclick="openMailApp('${data.email || ''}', '${data.name}', '${data.certLink}')" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-3.5 rounded-xl transition shadow-md flex items-center justify-center gap-2 border border-slate-600 text-sm md:text-base">
                   <i class="fi fi-sr-envelope mt-0.5"></i> ส่งเข้าอีเมลตัวเอง
