@@ -283,40 +283,6 @@
         platform: 32        // AG
     };
 
-    // --- MOCK DATA ---
-    const generateMockData = () => {
-        const mock = [];
-        const courses = ["แพทยศาสตร์", "พยาบาลศาสตร์", "รังสีเทคนิค", "วิทยาศาสตร์การเคลื่อนไหว", "ฉุกเฉินการแพทย์", "วิทยาศาสตร์ข้อมูลสุขภาพ"];
-        for(let i=0; i<350; i++) {
-            let row = new Array(35).fill('');
-            row[COLS.type] = i < 280 ? "นักเรียน" : i < 320 ? "ผู้ปกครอง" : "คุณครู";
-            row[COLS.round] = i % 3 === 0 ? "Portfolio" : i % 3 === 1 ? "Quota" : "Admission";
-            row[COLS.knowBefore] = i % 4 === 0 ? "ไม่เคยรู้จัก" : "เคยรู้จักมาก่อน";
-            row[COLS.channels] = "Facebook, Website, รุ่นพี่แนะนำ";
-            row[COLS.ratingStudy] = Math.floor(Math.random() * 2) + 4; // 4-5
-            row[COLS.ratingRegis] = Math.floor(Math.random() * 3) + 3; // 3-5
-            row[COLS.ratingTime] = Math.floor(Math.random() * 2) + 4;
-            row[COLS.ratingPlace] = Math.floor(Math.random() * 2) + 4;
-            row[COLS.ratingCourse] = 5;
-            row[COLS.course1] = courses[Math.floor(Math.random() * courses.length)];
-            row[COLS.course2] = courses[Math.floor(Math.random() * courses.length)];
-            row[COLS.favActs] = "ฐาน CPR, ฐานกายวิภาคศาสตร์, ดูงานห้องแล็บ";
-            row[COLS.ratingNextYear] = Math.floor(Math.random() * 2) + 4;
-            row[COLS.ratingOverall] = Math.floor(Math.random() * 2) + 4; // ทำให้เฉลี่ยออกมาสูงๆ
-            if(i % 10 === 0) row[COLS.feedback] = "สนุกมากครับ อยากให้จัดอีก";
-            if(i % 15 === 0) row[COLS.feedback] = "แอร์เย็นไปนิดนึงครับ";
-            row[COLS.preCourse] = courses[Math.floor(Math.random() * courses.length)];
-            row[COLS.school] = i % 2 === 0 ? "เตรียมอุดมศึกษา" : i % 3 === 0 ? "มหิดลวิทยานุสรณ์" : "สวนกุหลาบวิทยาลัย";
-            row[COLS.province] = i % 2 === 0 ? "กรุงเทพมหานคร" : "ปทุมธานี";
-            row[COLS.grade] = "ม.5";
-            row[COLS.sourceEvent] = "Facebook Education CRA";
-            row[COLS.followPage] = i % 5 === 0 ? "ไม่ได้ติดตาม" : "ติดตามอยู่";
-            row[COLS.platform] = i % 2 === 0 ? "Facebook" : "Instagram";
-            mock.push(row);
-        }
-        return mock;
-    };
-
     window.onload = async () => {
       try {
         const res = await fetch(GAS_URL, {
@@ -326,24 +292,31 @@
         });
         const json = await res.json();
         
-        if(json.status === 'success' && json.data && json.data.length > 1) {
-            RAW_DATA = json.data.slice(1).filter(row => String(row[0] || '').trim() !== '');
+        if(json.status === 'success') {
+            const temp = json.data;
+            if(temp && temp.length > 1) {
+                // กรองเอาเฉพาะแถวที่มีข้อมูล (ใช้ข้อมูลจริง 100% ไม่มีสุ่ม)
+                RAW_DATA = temp.slice(1).filter(row => String(row[0] || '').trim() !== '');
+                renderDashboard();
+            } else {
+                throw new Error('ยังไม่มีข้อมูลในฐานข้อมูล');
+            }
+
+            document.getElementById('loading').classList.add('opacity-0');
+            setTimeout(() => {
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('mainApp').classList.remove('hidden');
+                setTimeout(()=>document.getElementById('mainApp').classList.remove('opacity-0'), 50);
+            }, 500);
         } else {
-            throw new Error('API Error or No Data');
+            throw new Error(json.message || 'ไม่สามารถดึงข้อมูลได้');
         }
       } catch (error) {
-        console.warn("Using Mock Data. API Fetch Failed: ", error.message);
-        RAW_DATA = generateMockData();
+        console.error("API Fetch Failed: ", error);
+        // แสดงหน้าจอ Error สีแดงเมื่อดึงข้อมูลไม่สำเร็จ
+        document.getElementById('loading').innerHTML = `<div class="text-red-500 font-bold text-center p-6 bg-white rounded-3xl shadow-xl"><svg class="w-16 h-16 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg><br>ไม่สามารถเชื่อมต่อฐานข้อมูลได้<br><span class="text-sm text-gray-400 font-normal">กรุณาตรวจสอบการตั้งค่า Deploy ของ Google Apps Script หรือการเชื่อมต่ออินเทอร์เน็ต<br>${error.message}</span></div>`;
+        document.getElementById('loading').classList.remove('animate-pulse');
       }
-
-      renderDashboard();
-
-      document.getElementById('loading').classList.add('opacity-0');
-      setTimeout(() => {
-          document.getElementById('loading').classList.add('hidden');
-          document.getElementById('mainApp').classList.remove('hidden');
-          setTimeout(()=>document.getElementById('mainApp').classList.remove('opacity-0'), 50);
-      }, 500);
     };
 
     // --- UTILITIES FOR CALCULATION ---
@@ -550,7 +523,8 @@
         const groupedFb = Object.entries(fbCounts).sort((a, b) => b[1] - a[1]);
 
         if(groupedFb.length > 0) {
-            document.getElementById('feedbackContainer').innerHTML = groupedFb.slice(0,15).map(item => {
+            // เอา .slice(0,15) ออก เพื่อให้แสดงข้อเสนอแนะทั้งหมดทุกข้อ
+            document.getElementById('feedbackContainer').innerHTML = groupedFb.map(item => {
                 const badge = item[1] > 1 ? `<span class="bg-amber-100 text-amber-700 text-xs font-black px-2 py-1 rounded-full shrink-0 shadow-sm">x${item[1]}</span>` : '';
                 return `
                 <div class="bg-white p-4 rounded-xl shadow-sm border border-amber-100 flex items-start gap-3">
