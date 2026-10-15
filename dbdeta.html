@@ -236,6 +236,7 @@
           ข้อเสนอแนะเพิ่มเติม
         </h3>
         <div id="feedbackContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+        <div id="feedbackPagination" class="w-full"></div>
     </div>
   </div>
 
@@ -256,6 +257,9 @@
     const GAS_URL = 'https://script.google.com/macros/s/AKfycbwDhvM_hVuC-YRXCt58u6kDxIXtPLZrcvufI7oWqFSMgg7g_Gf9aEYB42NyYMSCO5IlYQ/exec'; 
 
     let RAW_DATA = [];
+    let globalFeedbackData = [];
+    let currentFeedbackPage = 1;
+    const FEEDBACK_PER_PAGE = 20;
 
     // MAPPING COLUMNS (อ้างอิง A=0 ตามที่คุณระบุเป๊ะๆ)
     const COLS = {
@@ -463,6 +467,70 @@
         openModal(title, html);
     }
 
+    // --- FEEDBACK PAGINATION ---
+    function renderFeedbackPage(page) {
+        currentFeedbackPage = page;
+        const start = (page - 1) * FEEDBACK_PER_PAGE;
+        const end = start + FEEDBACK_PER_PAGE;
+        const pageData = globalFeedbackData.slice(start, end);
+
+        document.getElementById('feedbackContainer').innerHTML = pageData.map(item => {
+            const badge = item[1] > 1 ? `<span class="bg-amber-100 text-amber-700 text-xs font-black px-2 py-1 rounded-full shrink-0 shadow-sm">x${item[1]}</span>` : '';
+            return `
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-amber-100 flex items-start gap-3">
+                <svg class="w-5 h-5 text-amber-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                <div class="flex-1 flex justify-between items-start gap-2">
+                    <p class="text-sm text-gray-700 leading-relaxed font-medium">${item[0]}</p>
+                    ${badge}
+                </div>
+            </div>
+        `}).join('');
+
+        renderFeedbackPagination();
+    }
+
+    function renderFeedbackPagination() {
+        const totalPages = Math.ceil(globalFeedbackData.length / FEEDBACK_PER_PAGE);
+        if (totalPages <= 1) {
+            document.getElementById('feedbackPagination').innerHTML = '';
+            return;
+        }
+
+        let html = '<div class="flex flex-wrap justify-center gap-2 mt-8 no-print">';
+        
+        if (currentFeedbackPage > 1) {
+            html += `<button onclick="renderFeedbackPage(${currentFeedbackPage - 1})" class="px-4 py-2 rounded-xl bg-white border border-amber-200 text-amber-700 hover:bg-amber-50 text-sm font-bold shadow-sm transition">ก่อนหน้า</button>`;
+        }
+
+        let startPage = Math.max(1, currentFeedbackPage - 2);
+        let endPage = Math.min(totalPages, currentFeedbackPage + 2);
+        
+        if (startPage > 1) {
+            html += `<button onclick="renderFeedbackPage(1)" class="px-4 py-2 rounded-xl bg-white border border-amber-200 text-amber-700 hover:bg-amber-50 text-sm font-bold shadow-sm transition">1</button>`;
+            if (startPage > 2) html += `<span class="px-2 py-2 text-amber-500 font-bold">...</span>`;
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            if (i === currentFeedbackPage) {
+                html += `<button class="px-4 py-2 rounded-xl bg-amber-500 text-white border border-amber-600 text-sm font-black shadow-md transform scale-105">${i}</button>`;
+            } else {
+                html += `<button onclick="renderFeedbackPage(${i})" class="px-4 py-2 rounded-xl bg-white border border-amber-200 text-amber-700 hover:bg-amber-50 text-sm font-bold shadow-sm transition">${i}</button>`;
+            }
+        }
+
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) html += `<span class="px-2 py-2 text-amber-500 font-bold">...</span>`;
+            html += `<button onclick="renderFeedbackPage(${totalPages})" class="px-4 py-2 rounded-xl bg-white border border-amber-200 text-amber-700 hover:bg-amber-50 text-sm font-bold shadow-sm transition">${totalPages}</button>`;
+        }
+
+        if (currentFeedbackPage < totalPages) {
+            html += `<button onclick="renderFeedbackPage(${currentFeedbackPage + 1})" class="px-4 py-2 rounded-xl bg-white border border-amber-200 text-amber-700 hover:bg-amber-50 text-sm font-bold shadow-sm transition">ถัดไป</button>`;
+        }
+
+        html += '</div>';
+        document.getElementById('feedbackPagination').innerHTML = html;
+    }
+
     // --- RENDERING UI ---
     function renderDashboard() {
         document.getElementById('kpiFormCount').innerText = RAW_DATA.length.toLocaleString();
@@ -516,27 +584,17 @@
         renderTable(countFreq(RAW_DATA, COLS.followPage), 'followPageTable');
         renderTableAndButton(countFreq(RAW_DATA, COLS.platform), 'platformTable', 'btnMorePlatform', 10);
 
-        // 4. Feedback Container (S = 18)
+        // 4. Feedback Container (S = 18) - With Pagination
         const rawFeedback = RAW_DATA.map(r => String(r[COLS.feedback]).trim()).filter(c => c && c !== '-' && c.toLowerCase() !== 'undefined');
         const fbCounts = {};
         rawFeedback.forEach(c => fbCounts[c] = (fbCounts[c] || 0) + 1);
-        const groupedFb = Object.entries(fbCounts).sort((a, b) => b[1] - a[1]);
+        globalFeedbackData = Object.entries(fbCounts).sort((a, b) => b[1] - a[1]);
 
-        if(groupedFb.length > 0) {
-            // เอา .slice(0,15) ออก เพื่อให้แสดงข้อเสนอแนะทั้งหมดทุกข้อ
-            document.getElementById('feedbackContainer').innerHTML = groupedFb.map(item => {
-                const badge = item[1] > 1 ? `<span class="bg-amber-100 text-amber-700 text-xs font-black px-2 py-1 rounded-full shrink-0 shadow-sm">x${item[1]}</span>` : '';
-                return `
-                <div class="bg-white p-4 rounded-xl shadow-sm border border-amber-100 flex items-start gap-3">
-                    <svg class="w-5 h-5 text-amber-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
-                    <div class="flex-1 flex justify-between items-start gap-2">
-                        <p class="text-sm text-gray-700 leading-relaxed font-medium">${item[0]}</p>
-                        ${badge}
-                    </div>
-                </div>
-            `}).join('');
+        if(globalFeedbackData.length > 0) {
+            renderFeedbackPage(1); // เริ่มต้นแสดงหน้า 1
         } else {
             document.getElementById('feedbackContainer').innerHTML = `<div class="col-span-full text-center py-8 text-amber-600/60 font-bold">ไม่มีข้อเสนอแนะที่ระบุไว้</div>`;
+            document.getElementById('feedbackPagination').innerHTML = '';
         }
     }
   </script>
