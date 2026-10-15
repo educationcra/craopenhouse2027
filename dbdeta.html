@@ -138,17 +138,20 @@
            <h4 class="font-bold text-indigo-800 text-lg mb-4">ประเภท</h4>
            <div class="overflow-hidden border border-gray-200 rounded-xl"><table class="w-full text-sm text-left"><thead class="table-header"><tr><th class="p-3">ประเภท</th><th class="p-3 text-right">จำนวน</th><th class="p-3 text-right">ร้อยละ</th></tr></thead><tbody id="typeTable" class="divide-y divide-gray-100"></tbody></table></div>
         </div>
-        <div class="glass-card p-6 border-t-4 border-teal-400">
+        <div class="glass-card p-6 border-t-4 border-teal-400 flex flex-col">
            <h4 class="font-bold text-teal-800 text-lg mb-4">ระดับชั้น</h4>
-           <div class="overflow-hidden border border-gray-200 rounded-xl"><table class="w-full text-sm text-left"><thead class="table-header"><tr><th class="p-3 w-16 text-center">อันดับ</th><th class="p-3">ระดับชั้น</th><th class="p-3 text-right">จำนวน</th><th class="p-3 text-right">ร้อยละ</th></tr></thead><tbody id="gradeTable" class="divide-y divide-gray-100"></tbody></table></div>
+           <div class="overflow-hidden border border-gray-200 rounded-xl flex-1"><table class="w-full text-sm text-left"><thead class="table-header"><tr><th class="p-3 w-16 text-center">อันดับ</th><th class="p-3">ระดับชั้น</th><th class="p-3 text-right">จำนวน</th><th class="p-3 text-right">ร้อยละ</th></tr></thead><tbody id="gradeTable" class="divide-y divide-gray-100"></tbody></table></div>
+           <button id="btnMoreGrade" onclick="showRankingModal('ระดับชั้นทั้งหมด', COLS.grade)" class="w-full mt-4 py-3 bg-teal-50 hover:bg-teal-100 text-teal-700 font-bold rounded-xl transition text-sm flex items-center justify-center gap-2 no-print hidden"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg> ดูอันดับทั้งหมด</button>
         </div>
         <div class="glass-card p-6 border-t-4 border-purple-400 flex flex-col">
            <h4 class="font-bold text-purple-800 text-lg mb-4">โรงเรียน</h4>
            <div class="overflow-hidden border border-gray-200 rounded-xl flex-1"><table class="w-full text-sm text-left"><thead class="table-header"><tr><th class="p-3 w-16 text-center">อันดับ</th><th class="p-3">โรงเรียน</th><th class="p-3 text-right">จำนวน</th><th class="p-3 text-right">ร้อยละ</th></tr></thead><tbody id="schoolTable" class="divide-y divide-gray-100"></tbody></table></div>
+           <button id="btnMoreSchool" onclick="showRankingModal('โรงเรียนทั้งหมด', COLS.school)" class="w-full mt-4 py-3 bg-purple-50 hover:bg-purple-100 text-purple-700 font-bold rounded-xl transition text-sm flex items-center justify-center gap-2 no-print hidden"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg> ดูอันดับทั้งหมด</button>
         </div>
         <div class="glass-card p-6 border-t-4 border-pink-400 flex flex-col">
            <h4 class="font-bold text-pink-800 text-lg mb-4">จังหวัดของโรงเรียน</h4>
            <div class="overflow-hidden border border-gray-200 rounded-xl flex-1"><table class="w-full text-sm text-left"><thead class="table-header"><tr><th class="p-3 w-16 text-center">อันดับ</th><th class="p-3">จังหวัด</th><th class="p-3 text-right">จำนวน</th><th class="p-3 text-right">ร้อยละ</th></tr></thead><tbody id="provinceTable" class="divide-y divide-gray-100"></tbody></table></div>
+           <button id="btnMoreProvince" onclick="showRankingModal('จังหวัดของโรงเรียนทั้งหมด', COLS.province)" class="w-full mt-4 py-3 bg-pink-50 hover:bg-pink-100 text-pink-700 font-bold rounded-xl transition text-sm flex items-center justify-center gap-2 no-print hidden"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg> ดูอันดับทั้งหมด</button>
         </div>
       </div>
     </div>
@@ -160,14 +163,16 @@
       </h3>
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-6">
         <!-- M + N -->
-        <div class="glass-card p-6 border-l-4 border-rose-500 lg:col-span-2">
+        <div class="glass-card p-6 border-l-4 border-rose-500 lg:col-span-2 flex flex-col">
            <h4 class="font-bold text-rose-800 text-lg mb-2">หลักสูตรที่ท่านสนใจมากที่สุดหลังร่วมกิจกรรม (สรุปรวมอันดับที่ 1 และอันดับที่ 2)</h4>
-           <div class="overflow-hidden border border-gray-200 rounded-xl mt-4"><table class="w-full text-sm text-left"><thead class="table-header"><tr><th class="p-3 w-16 text-center">อันดับ</th><th class="p-3">หลักสูตร</th><th class="p-3 text-right">จำนวน (ครั้ง)</th><th class="p-3 text-right">ร้อยละ (เทียบจำนวนผู้ตอบ)</th></tr></thead><tbody id="courseCombinedTable" class="divide-y divide-gray-100"></tbody></table></div>
+           <div class="overflow-hidden border border-gray-200 rounded-xl mt-4 flex-1"><table class="w-full text-sm text-left"><thead class="table-header"><tr><th class="p-3 w-16 text-center">อันดับ</th><th class="p-3">หลักสูตร</th><th class="p-3 text-right">จำนวน (ครั้ง)</th><th class="p-3 text-right">ร้อยละ (เทียบจำนวนผู้ตอบ)</th></tr></thead><tbody id="courseCombinedTable" class="divide-y divide-gray-100"></tbody></table></div>
+           <button id="btnMoreCourseCombined" onclick="showRankingModal('หลักสูตรที่สนใจหลังร่วมกิจกรรมทั้งหมด', 'combinedCourse')" class="w-full mt-4 py-3 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold rounded-xl transition text-sm flex items-center justify-center gap-2 no-print lg:w-1/2 mx-auto hidden"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg> ดูอันดับทั้งหมด</button>
         </div>
         
-        <div class="glass-card p-6 border-l-4 border-orange-500">
+        <div class="glass-card p-6 border-l-4 border-orange-500 flex flex-col">
            <h4 class="font-bold text-orange-800 text-lg mb-4">หลักสูตรที่ชอบก่อนเข้าร่วมกิจกรรม</h4>
-           <div class="overflow-hidden border border-gray-200 rounded-xl"><table class="w-full text-sm text-left"><thead class="table-header"><tr><th class="p-3 w-16 text-center">อันดับ</th><th class="p-3">หลักสูตร</th><th class="p-3 text-right">จำนวน</th><th class="p-3 text-right">ร้อยละ</th></tr></thead><tbody id="preCourseTable" class="divide-y divide-gray-100"></tbody></table></div>
+           <div class="overflow-hidden border border-gray-200 rounded-xl flex-1"><table class="w-full text-sm text-left"><thead class="table-header"><tr><th class="p-3 w-16 text-center">อันดับ</th><th class="p-3">หลักสูตร</th><th class="p-3 text-right">จำนวน</th><th class="p-3 text-right">ร้อยละ</th></tr></thead><tbody id="preCourseTable" class="divide-y divide-gray-100"></tbody></table></div>
+           <button id="btnMorePreCourse" onclick="showRankingModal('หลักสูตรที่ชอบก่อนร่วมกิจกรรมทั้งหมด', COLS.preCourse)" class="w-full mt-4 py-3 bg-orange-50 hover:bg-orange-100 text-orange-700 font-bold rounded-xl transition text-sm flex items-center justify-center gap-2 no-print hidden"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg> ดูอันดับทั้งหมด</button>
         </div>
 
         <div class="glass-card p-6 border-l-4 border-emerald-500">
@@ -175,9 +180,10 @@
            <div class="overflow-hidden border border-gray-200 rounded-xl"><table class="w-full text-sm text-left"><thead class="table-header"><tr><th class="p-3 w-16 text-center">อันดับ</th><th class="p-3">รอบการรับสมัคร</th><th class="p-3 text-right">จำนวน</th><th class="p-3 text-right">ร้อยละ</th></tr></thead><tbody id="roundTable" class="divide-y divide-gray-100"></tbody></table></div>
         </div>
 
-        <div class="glass-card p-6 border-l-4 border-blue-500 lg:col-span-2">
+        <div class="glass-card p-6 border-l-4 border-blue-500 lg:col-span-2 flex flex-col">
            <h4 class="font-bold text-blue-800 text-lg mb-4">กิจกรรมที่ท่านชอบมากที่สุดใน CRA Open House 2027 (ตอบได้มากกว่า 1 ข้อ)</h4>
-           <div class="overflow-hidden border border-gray-200 rounded-xl"><table class="w-full text-sm text-left"><thead class="table-header"><tr><th class="p-3 w-16 text-center">อันดับ</th><th class="p-3">กิจกรรม</th><th class="p-3 text-right">จำนวน</th><th class="p-3 text-right">ร้อยละ</th></tr></thead><tbody id="favActTable" class="divide-y divide-gray-100"></tbody></table></div>
+           <div class="overflow-hidden border border-gray-200 rounded-xl flex-1"><table class="w-full text-sm text-left"><thead class="table-header"><tr><th class="p-3 w-16 text-center">อันดับ</th><th class="p-3">กิจกรรม</th><th class="p-3 text-right">จำนวน</th><th class="p-3 text-right">ร้อยละ</th></tr></thead><tbody id="favActTable" class="divide-y divide-gray-100"></tbody></table></div>
+           <button id="btnMoreFavAct" onclick="showRankingModal('กิจกรรมที่ชอบมากที่สุดทั้งหมด', COLS.favActs, true)" class="w-full mt-4 py-3 bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold rounded-xl transition text-sm flex items-center justify-center gap-2 no-print lg:w-1/2 mx-auto hidden"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg> ดูอันดับทั้งหมด</button>
         </div>
       </div>
     </div>
@@ -194,27 +200,30 @@
           <div class="overflow-hidden border border-gray-200 rounded-xl"><table class="w-full text-sm text-left"><thead class="table-header"><tr><th class="p-3">สถานะ</th><th class="p-3 text-right">จำนวน</th><th class="p-3 text-right">ร้อยละ</th></tr></thead><tbody id="knowBeforeTable" class="divide-y divide-gray-100"></tbody></table></div>
         </div>
 
-        <div class="glass-card p-6">
+        <div class="glass-card p-6 flex flex-col">
           <h3 class="text-lg font-bold text-gray-800 mb-4">ท่านทราบข่าวเกี่ยวกับกิจกรรมจากแหล่งใด</h3>
           <div class="overflow-hidden border border-gray-200 rounded-xl flex-1"><table class="w-full text-sm text-left"><thead class="table-header"><tr><th class="p-3 w-16 text-center">อันดับ</th><th class="p-3">แหล่งข่าว</th><th class="p-3 text-right">จำนวน</th><th class="p-3 text-right">ร้อยละ</th></tr></thead><tbody id="sourceEventTable" class="divide-y divide-gray-100"></tbody></table></div>
+          <button id="btnMoreSourceEvent" onclick="showRankingModal('แหล่งข่าวทั้งหมด', COLS.sourceEvent, true)" class="w-full mt-4 py-3 bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold rounded-xl transition text-sm flex items-center justify-center gap-2 no-print hidden"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg> ดูข้อมูลทั้งหมด</button>
         </div>
 
-        <div class="glass-card p-6 lg:col-span-2">
+        <div class="glass-card p-6 lg:col-span-2 flex flex-col">
           <h3 class="text-lg font-bold text-gray-800 mb-4">ท่านรู้จักราชวิทยาลัยจุฬาภรณ์จากช่องทางใด (ตอบได้มากกว่า 1 ข้อ)</h3>
           <div class="overflow-hidden border border-gray-200 rounded-xl flex-1"><table class="w-full text-sm text-left"><thead class="table-header"><tr><th class="p-3 w-16 text-center">อันดับ</th><th class="p-3">ช่องทาง</th><th class="p-3 text-right">จำนวน</th><th class="p-3 text-right">ร้อยละ</th></tr></thead><tbody id="channelsTable" class="divide-y divide-gray-100"></tbody></table></div>
+          <button id="btnMoreChannels" onclick="showRankingModal('ช่องทางทั้งหมด', COLS.channels, true)" class="w-full mt-4 py-3 bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold rounded-xl transition text-sm flex items-center justify-center gap-2 no-print lg:w-1/2 mx-auto hidden"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg> ดูข้อมูลทั้งหมด</button>
         </div>
 
         <!-- AF & AG Combined Request -->
-        <div class="glass-card p-6 lg:col-span-2 bg-slate-50 border-2 border-blue-100">
+        <div class="glass-card p-6 lg:col-span-2 bg-slate-50 border-2 border-blue-100 flex flex-col">
            <h3 class="text-lg font-bold text-blue-900 mb-4 flex items-center gap-2"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z"></path><path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z"></path></svg> การติดตามข่าวสาร</h3>
-           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-               <div>
+           <div class="grid grid-cols-1 md:grid-cols-2 gap-6 flex-1">
+               <div class="flex flex-col">
                    <h4 class="font-semibold text-gray-700 mb-2 text-sm">ปัจจุบันท่านได้ติดตามเพจข่าวสารทางการศึกษา Education CRA หรือไม่</h4>
-                   <div class="overflow-hidden border border-gray-200 rounded-xl bg-white"><table class="w-full text-sm text-left"><thead class="table-header"><tr><th class="p-3">สถานะ</th><th class="p-3 text-right">จำนวน</th><th class="p-3 text-right">ร้อยละ</th></tr></thead><tbody id="followPageTable" class="divide-y divide-gray-100"></tbody></table></div>
+                   <div class="overflow-hidden border border-gray-200 rounded-xl bg-white flex-1"><table class="w-full text-sm text-left"><thead class="table-header"><tr><th class="p-3">สถานะ</th><th class="p-3 text-right">จำนวน</th><th class="p-3 text-right">ร้อยละ</th></tr></thead><tbody id="followPageTable" class="divide-y divide-gray-100"></tbody></table></div>
                </div>
-               <div>
+               <div class="flex flex-col">
                    <h4 class="font-semibold text-gray-700 mb-2 text-sm">ส่วนใหญ่ติดตามเพจ Education CRA เพื่อดูข่าวสารในแพลตฟอร์มใดมากที่สุด</h4>
-                   <div class="overflow-hidden border border-gray-200 rounded-xl bg-white"><table class="w-full text-sm text-left"><thead class="table-header"><tr><th class="p-3 w-12 text-center">#</th><th class="p-3">แพลตฟอร์ม</th><th class="p-3 text-right">จำนวน</th><th class="p-3 text-right">ร้อยละ</th></tr></thead><tbody id="platformTable" class="divide-y divide-gray-100"></tbody></table></div>
+                   <div class="overflow-hidden border border-gray-200 rounded-xl bg-white flex-1"><table class="w-full text-sm text-left"><thead class="table-header"><tr><th class="p-3 w-12 text-center">#</th><th class="p-3">แพลตฟอร์ม</th><th class="p-3 text-right">จำนวน</th><th class="p-3 text-right">ร้อยละ</th></tr></thead><tbody id="platformTable" class="divide-y divide-gray-100"></tbody></table></div>
+                   <button id="btnMorePlatform" onclick="showRankingModal('แพลตฟอร์มทั้งหมด', COLS.platform)" class="w-full mt-4 py-3 bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold rounded-xl transition text-sm flex items-center justify-center gap-2 no-print hidden"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg> ดูข้อมูลทั้งหมด</button>
                </div>
            </div>
         </div>
@@ -227,6 +236,18 @@
           ข้อเสนอแนะเพิ่มเติม
         </h3>
         <div id="feedbackContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+    </div>
+  </div>
+
+  <!-- Modal สำหรับแสดงข้อมูลทั้งหมด -->
+  <div id="genericModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 sm:p-6 no-print">
+    <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeModal()"></div>
+    <div class="bg-white rounded-[2rem] shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col relative z-10 overflow-hidden transform scale-95 opacity-0 transition-all duration-300" id="modalContentWrapper">
+      <div class="px-6 py-5 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
+        <h3 id="genericModalTitle" class="font-black text-xl text-slate-800 flex items-center gap-3"></h3>
+        <button onclick="closeModal()" class="w-10 h-10 bg-white hover:bg-rose-50 text-slate-400 hover:text-rose-500 rounded-full flex justify-center items-center shadow-sm transition"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+      </div>
+      <div id="genericModalBody" class="p-6 overflow-y-auto bg-white flex-1 custom-scrollbar"></div>
     </div>
   </div>
 
@@ -401,7 +422,72 @@
     }
 
     function renderTable(dataArray, tableId, limit = 10) {
-        document.getElementById(tableId).innerHTML = dataArray.slice(0,limit).map((d,i) => genTableRow(d.label, d.count, d.pct, tableId.includes('Table') && !tableId.includes('know') && !tableId.includes('type') && !tableId.includes('follow') ? i+1 : null)).join('');
+        let displayLimit = dataArray.length <= limit + 1 ? dataArray.length : limit;
+        document.getElementById(tableId).innerHTML = dataArray.slice(0,displayLimit).map((d,i) => genTableRow(d.label, d.count, d.pct, tableId.includes('Table') && !tableId.includes('know') && !tableId.includes('type') && !tableId.includes('follow') ? i+1 : null)).join('');
+    }
+
+    function renderTableAndButton(dataArray, tableId, btnId, defaultLimit = 10) {
+        // ถ้าข้อมูลมีไม่เกิน limit + 1 (เช่น 11 อันดับ) ให้แสดงทั้งหมดเลยโดยไม่ต้องซ่อน
+        let displayLimit = dataArray.length <= defaultLimit + 1 ? dataArray.length : defaultLimit;
+        
+        document.getElementById(tableId).innerHTML = dataArray.slice(0,displayLimit).map((d,i) => genTableRow(d.label, d.count, d.pct, tableId.includes('Table') && !tableId.includes('know') && !tableId.includes('type') && !tableId.includes('follow') ? i+1 : null)).join('');
+        
+        const btn = document.getElementById(btnId);
+        if(btn) {
+            if(dataArray.length > displayLimit) btn.classList.remove('hidden');
+            else btn.classList.add('hidden');
+        }
+    }
+
+    // --- MODAL FUNCTIONS ---
+    function openModal(title, htmlContent, iconHtml = '') {
+        const modal = document.getElementById('genericModal');
+        const wrapper = document.getElementById('modalContentWrapper');
+        
+        document.getElementById('genericModalTitle').innerHTML = (iconHtml || '<div class="p-2 bg-blue-100 rounded-lg text-blue-600"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div>') + title;
+        document.getElementById('genericModalBody').innerHTML = htmlContent;
+        
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            wrapper.classList.remove('scale-95', 'opacity-0');
+            wrapper.classList.add('scale-100', 'opacity-100');
+        }, 10);
+    }
+
+    function closeModal() {
+        const modal = document.getElementById('genericModal');
+        const wrapper = document.getElementById('modalContentWrapper');
+        wrapper.classList.remove('scale-100', 'opacity-100');
+        wrapper.classList.add('scale-95', 'opacity-0');
+        setTimeout(() => modal.classList.add('hidden'), 300);
+    }
+
+    function showRankingModal(title, colIndexOrType, isMulti = false) {
+        let dataList = [];
+        if (colIndexOrType === 'combinedCourse') {
+            dataList = countCombinedCourses(RAW_DATA);
+        } else {
+            dataList = countFreq(RAW_DATA, colIndexOrType, isMulti);
+        }
+
+        if(dataList.length === 0) {
+            openModal(title, '<div class="text-center py-10 text-slate-400 font-bold">ไม่มีข้อมูล</div>');
+            return;
+        }
+        
+        const html = `
+            <div class="overflow-hidden border border-slate-200 rounded-xl">
+                <table class="w-full text-sm text-left">
+                    <thead class="bg-slate-50 text-slate-600 font-bold border-b border-slate-200">
+                        <tr><th class="p-4 w-16 text-center">อันดับ</th><th class="p-4">รายการ</th><th class="p-4 text-right">จำนวน</th><th class="p-4 text-right">ร้อยละ</th></tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        ${dataList.map((d, i) => genTableRow(d.label, d.count, d.pct, i+1)).join('')}
+                    </tbody>
+                </table>
+            </div>
+        `;
+        openModal(title, html);
     }
 
     // --- RENDERING UI ---
@@ -441,21 +527,21 @@
 
         // 3. Tables (Demographics & Others)
         renderTable(countFreq(RAW_DATA, COLS.type), 'typeTable');
-        renderTable(countFreq(RAW_DATA, COLS.grade), 'gradeTable', 10);
-        renderTable(countFreq(RAW_DATA, COLS.school), 'schoolTable', 10);
-        renderTable(countFreq(RAW_DATA, COLS.province), 'provinceTable', 10);
+        renderTableAndButton(countFreq(RAW_DATA, COLS.grade), 'gradeTable', 'btnMoreGrade', 10);
+        renderTableAndButton(countFreq(RAW_DATA, COLS.school), 'schoolTable', 'btnMoreSchool', 10);
+        renderTableAndButton(countFreq(RAW_DATA, COLS.province), 'provinceTable', 'btnMoreProvince', 10);
 
-        renderTable(countCombinedCourses(RAW_DATA), 'courseCombinedTable', 11);
-        renderTable(countFreq(RAW_DATA, COLS.preCourse), 'preCourseTable', 10);
+        renderTableAndButton(countCombinedCourses(RAW_DATA), 'courseCombinedTable', 'btnMoreCourseCombined', 10);
+        renderTableAndButton(countFreq(RAW_DATA, COLS.preCourse), 'preCourseTable', 'btnMorePreCourse', 10);
         renderTable(countFreq(RAW_DATA, COLS.round), 'roundTable');
-        renderTable(countFreq(RAW_DATA, COLS.favActs, true), 'favActTable', 10);
+        renderTableAndButton(countFreq(RAW_DATA, COLS.favActs, true), 'favActTable', 'btnMoreFavAct', 10);
 
         renderTable(countFreq(RAW_DATA, COLS.knowBefore), 'knowBeforeTable');
-        renderTable(countFreq(RAW_DATA, COLS.sourceEvent, true), 'sourceEventTable', 10);
-        renderTable(countFreq(RAW_DATA, COLS.channels, true), 'channelsTable', 10);
+        renderTableAndButton(countFreq(RAW_DATA, COLS.sourceEvent, true), 'sourceEventTable', 'btnMoreSourceEvent', 10);
+        renderTableAndButton(countFreq(RAW_DATA, COLS.channels, true), 'channelsTable', 'btnMoreChannels', 10);
         
         renderTable(countFreq(RAW_DATA, COLS.followPage), 'followPageTable');
-        renderTable(countFreq(RAW_DATA, COLS.platform), 'platformTable', 10);
+        renderTableAndButton(countFreq(RAW_DATA, COLS.platform), 'platformTable', 'btnMorePlatform', 10);
 
         // 4. Feedback Container (S = 18)
         const rawFeedback = RAW_DATA.map(r => String(r[COLS.feedback]).trim()).filter(c => c && c !== '-' && c.toLowerCase() !== 'undefined');
